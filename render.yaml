@@ -75,6 +75,12 @@ services:
       - key: PUBLIC_NEWSLETTER_WEBHOOK_URL
         sync: false
 
+      # The TLB Local Care nomination form's Zapier catch hook. Its own Zap and
+      # board, not the enquiry one. See NOMINATION-FORM-SETUP.md. Unset is
+      # safe: the form renders and says it is not connected.
+      - key: PUBLIC_NOMINATION_WEBHOOK_URL
+        sync: false
+
     headers:
       # Everything under /_astro/ is content-hashed by Astro (filenames change
       # when contents change), so it can be cached indefinitely. HTML is left on
@@ -106,6 +112,10 @@ services:
 
       # Same idea for the newsletter: a test Zap, or empty.
       - key: PUBLIC_NEWSLETTER_WEBHOOK_URL
+        sync: false
+
+      # And for Local Care nominations: a test Zap, or empty.
+      - key: PUBLIC_NOMINATION_WEBHOOK_URL
         sync: false
 
     headers:
