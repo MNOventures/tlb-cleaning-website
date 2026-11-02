@@ -1,0 +1,83 @@
+seo:
+  title: TLB Local Care | One property a month, Northern Rivers
+  description: Once a month our local team gives one property a full day of work,
+    at no cost. Nominate a neighbour, a hall or a family across the region.
+nominateCta:
+  label: Nominate a property
+  href: "#nominate"
+hero:
+  headingLines:
+    - TLB Local Care
+  lead: Once a month our team takes on one property in the community that could
+    use a hand, and gives it a full day of work, at no cost to them. A
+    neighbour, an older resident, a family going through a tough time, a
+    community hall or a volunteer group. You tell us who, and we turn up.
+  image:
+    alt: A TLB team at work on a community job
+heroVideo:
+  src: https://drive.google.com/file/d/1MI91XuMRi2n372r-IaitH34jm94evVkI/preview
+  title: TLB Local Care video
+howItWorks:
+  heading: How it works
+  items:
+    - heading: You nominate
+      body:
+        - Tell us about the person or place and why they could use a hand. It
+          takes a couple of minutes.
+    - heading: We choose one
+      body:
+        - Each month our team picks one property from the nominations.
+    - heading: We spend the day
+      body:
+        - One local team, one day, inside and out. Kitchen, bathrooms, bedrooms,
+          windows, floors and outdoor areas, depending on what the place needs.
+    - heading: We share it, with permission
+      body:
+        - We film the day so people can see it. We only film with the owner's
+          written consent, and we never show an address or anything that
+          identifies the property.
+whoCanNominate:
+  heading: Who you can nominate
+  body:
+    - type: paragraph
+      text: Anyone across the region we look after. That's Lismore, Casino, Kyogle,
+        Alstonville, Evans Head, Ballina, Byron Bay, Mullumbimby and the rest of
+        the Northern Rivers, the Tweed from Murwillumbah to Tweed Heads,
+        Kingscliff and Pottsville, and the Southern Gold Coast from Coolangatta
+        to Burleigh.
+    - type: paragraph
+      text: It might be someone who's always helping others and never asks for help
+        themselves. A volunteer group whose hall needs a proper going-over. A
+        family with too much on right now. If you think of someone when you read
+        this, nominate them.
+faq:
+  heading: Your questions
+  items:
+    - question: Does it cost anything?
+      answer: No. There's no cost to the person or place we choose.
+    - question: Who chooses the property?
+      answer: Our team reads every nomination and chooses one each month.
+    - question: Can I nominate myself?
+      answer: Yes. If you could use a hand yourself, tell us about your place and why.
+    - question: Will the property be shown online?
+      answer: Only with the owner's written consent. We never show an address, and we
+        don't film anything that identifies the property or the people in it
+        beyond what the owner agrees to.
+    - question: What if the person I nominate doesn't want to be filmed?
+      answer: That's fine, just tell us in the nomination.
+    - question: When does the next one happen?
+      answer: Every month. Follow TLB on Instagram and Facebook to see each one as it
+        happens.
+nominate:
+  heading: Know someone who could use a hand?
+  lead: Tell us who they are and why. Next month, it could be them.
+  submitLabel: Nominate a property
+  submittingLabel: Sending…
+  successHeading: Thank you for telling us.
+  successBody: Our team reads every nomination and chooses one property each month.
+  errorHeading: That did not send.
+  errorBody: Something went wrong between this page and our inbox. Rather than
+    sending it twice, call or email us and we will pick it up from there.
+  unconfiguredHeading: This form is not connected yet.
+  unconfiguredBody: Nothing was sent, so please call or email instead. Those reach
+    us today.

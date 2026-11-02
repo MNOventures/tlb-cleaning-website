@@ -1,0 +1,579 @@
+---
+// The TLB Local Care nomination form: a heading and lead, then a
+// two-column grid of fields (your details, who you are nominating, why), a
+// Yes/No question, a consent tick and the submit button. The fields are the
+// eight in the Local Care copy doc, in its order.
+//
+// WHY THIS IS NOT ContactForm.astro WITH A PROP. That component's fields, its
+// fixed #enquiry anchor, its thank-you redirect and its endpoint are all the
+// enquiry form's, and the footer renders it on almost every page. Making it
+// take arbitrary fields would put the one form that brings in work at risk for
+// a page that is not approved yet. The two share their submit rules and field
+// styling on purpose; if a third form arrives, extract both then.
+//
+// ⚠️ READ src/data/nominationForm.ts BEFORE CHANGING SUBMIT BEHAVIOUR. As with
+// the enquiry form, every path tells the truth:
+//   1. No endpoint configured  -> refuses to submit, says it is not connected.
+//   2. Endpoint, request fails -> says it did not send, points at phone/email,
+//                                 and does not invite a retry (the webhook may
+//                                 have it already; a retry duplicates it).
+//   3. Endpoint, request ok    -> replaces the form with the thank-you, in
+//                                 place. No redirect: /thank-you/ is the
+//                                 enquiry form's and GTM counts it as a lead.
+//
+// The request is urlencoded, not JSON, so it stays a CORS simple request (see
+// ContactForm.astro for the full reason). With JavaScript off, the native post
+// still delivers the nomination to the webhook.
+import Button from '../ui/Button.astro';
+import { nominationEndpoint } from '../../data/nominationForm';
+import { allTowns } from '../../data/locations';
+import { sectionHeadingTags } from '../../lib/headings';
+
+interface Props {
+  /** The anchor every "Nominate a property" button on the page jumps to. */
+  id?: string;
+  kicker?: string;
+  heading: string;
+  lead?: string;
+  submitLabel: string;
+  submittingLabel: string;
+  successHeading: string;
+  successBody: string;
+  errorHeading: string;
+  errorBody: string;
+  unconfiguredHeading: string;
+  unconfiguredBody: string;
+  /** Shown inside the error and not-connected messages so a failed submit always leaves somewhere to go. */
+  fallbackPhone?: string;
+  fallbackEmail?: string;
+}
+
+const {
+  id = 'nominate',
+  kicker,
+  heading,
+  lead,
+  submitLabel,
+  submittingLabel,
+  successHeading,
+  successBody,
+  errorHeading,
+  errorBody,
+  unconfiguredHeading,
+  unconfiguredBody,
+  fallbackPhone,
+  fallbackEmail,
+} = Astro.props;
+
+const { Heading } = sectionHeadingTags(heading);
+
+// Every free-text field the doc lists, mapped rather than written out six
+// times. All are required: a nomination with no way back to the nominator, or
+// no idea who or where the nominee is, cannot be acted on.
+const textFields: {
+  name: string;
+  id: string;
+  label: string;
+  type: 'text' | 'email' | 'tel';
+  autocomplete: string;
+  inputmode?: 'email' | 'tel' | 'text';
+  list?: string;
+  full?: boolean;
+}[] = [
+  { name: 'yourName', id: 'nominate-your-name', label: 'Your name', type: 'text', autocomplete: 'name', full: true },
+  { name: 'yourPhone', id: 'nominate-your-phone', label: 'Your phone', type: 'tel', autocomplete: 'tel', inputmode: 'tel' },
+  { name: 'yourEmail', id: 'nominate-your-email', label: 'Your email', type: 'email', autocomplete: 'email', inputmode: 'email' },
+  { name: 'nomineeName', id: 'nominate-nominee-name', label: "Who you're nominating", type: 'text', autocomplete: 'off' },
+  { name: 'nomineeTown', id: 'nominate-nominee-town', label: 'Their town', type: 'text', autocomplete: 'off', list: 'nominate-towns' },
+];
+
+// Handed to the client script as one object.
+const config = {
+  endpoint: nominationEndpoint,
+  copy: {
+    submit: submitLabel,
+    submitting: submittingLabel,
+    successHeading,
+    successBody,
+    errorHeading,
+    errorBody,
+    unconfiguredHeading,
+    unconfiguredBody,
+  },
+};
+---
+
+<section id={id} class="nominate" aria-labelledby={`${id}-heading`}>
+  <div class="container nominate__inner">
+    <div class="nominate__intro">
+      {kicker && <p class="nominate__kicker">{kicker}</p>}
+      <Heading id={`${id}-heading`} class="title-2">{heading}</Heading>
+      {lead && <p class="lead">{lead}</p>}
+    </div>
+
+    <form
+      class="nominate__form"
+      data-nominate-form
+      action={nominationEndpoint || undefined}
+      method="post"
+      enctype="application/x-www-form-urlencoded"
+    >
+      <div class="nominate__grid" data-nominate-fields>
+        {textFields.map((field) => (
+          <div class:list={['field', { 'field--full': field.full }]}>
+            <label class="field__label" for={field.id}>
+              {field.label}
+              <span class="field__req" aria-hidden="true">*</span>
+              <span class="sr-only"> (required)</span>
+            </label>
+            <input
+              class="field__control"
+              id={field.id}
+              name={field.name}
+              type={field.type}
+              inputmode={field.inputmode}
+              autocomplete={field.autocomplete}
+              list={field.list}
+              required
+              aria-describedby={`${field.id}-error`}
+              data-nominate-control
+            />
+            <p class="field__error" id={`${field.id}-error`} data-field-error hidden></p>
+          </div>
+        ))}
+
+        {/* Suggestions only: any town can still be typed. */}
+        <datalist id="nominate-towns">
+          {allTowns.map((town) => <option value={town} />)}
+        </datalist>
+
+        <div class="field field--full">
+          <label class="field__label" for="nominate-why">
+            Why they could use a hand
+            <span class="field__req" aria-hidden="true">*</span>
+            <span class="sr-only"> (required)</span>
+          </label>
+          <textarea
+            class="field__control field__control--textarea"
+            id="nominate-why"
+            name="whyTheyNeedAHand"
+            rows="6"
+            required
+            aria-describedby="nominate-why-error"
+            data-nominate-control
+          ></textarea>
+          <p class="field__error" id="nominate-why-error" data-field-error hidden></p>
+        </div>
+
+        {/* A radio group validates as one control: the error sits under the
+            fieldset, keyed by the group's name rather than an input id. */}
+        <fieldset class="field field--full field__group" aria-describedby="nominate-knows-error">
+          <legend class="field__label">
+            Do they know you're nominating them?
+            <span class="field__req" aria-hidden="true">*</span>
+            <span class="sr-only"> (required)</span>
+          </legend>
+          <div class="field__choices">
+            <label class="field__choice">
+              <input type="radio" name="nomineeKnows" value="Yes" required data-nominate-control data-error-id="nominate-knows-error" />
+              Yes
+            </label>
+            <label class="field__choice">
+              <input type="radio" name="nomineeKnows" value="No" data-nominate-control data-error-id="nominate-knows-error" />
+              No
+            </label>
+          </div>
+          <p class="field__error" id="nominate-knows-error" data-field-error hidden></p>
+        </fieldset>
+
+        {/* Optional: a nominator who answered "No" above cannot truthfully tick it. */}
+        <div class="field field--full">
+          <label class="field__check">
+            <input type="checkbox" name="happyToBeContacted" value="Yes" />
+            <span>They're happy to be contacted</span>
+          </label>
+        </div>
+      </div>
+
+      {/* Honeypot, as in ContactForm.astro: off-screen rather than display:none. */}
+      <div class="nominate__trap" aria-hidden="true">
+        <label for="nominate-website">Website</label>
+        <input id="nominate-website" name="website" type="text" tabindex="-1" autocomplete="off" />
+      </div>
+
+      <input type="hidden" name="sourcePage" value="" data-source-page />
+      <input type="hidden" name="submittedAt" value="" data-submitted-at />
+
+      <div class="nominate__status" role="status" aria-live="polite" data-nominate-status hidden>
+        <p class="nominate__status-heading" data-status-heading></p>
+        <p class="nominate__status-body" data-status-body></p>
+        {(fallbackPhone || fallbackEmail) && (
+          <ul class="nominate__fallback" data-status-fallback hidden>
+            {fallbackPhone && <li>Phone: {fallbackPhone}</li>}
+            {fallbackEmail && <li>Email: {fallbackEmail}</li>}
+          </ul>
+        )}
+      </div>
+
+      <div class="nominate__actions" data-nominate-actions>
+        <Button label={submitLabel} type="submit" variant="brand" />
+      </div>
+    </form>
+  </div>
+</section>
+
+<script is:inline define:vars={{ config }}>
+  document.querySelectorAll('[data-nominate-form]').forEach((form) => {
+    const fields = form.querySelector('[data-nominate-fields]');
+    const actions = form.querySelector('[data-nominate-actions]');
+    const status = form.querySelector('[data-nominate-status]');
+    const statusHeading = form.querySelector('[data-status-heading]');
+    const statusBody = form.querySelector('[data-status-body]');
+    const statusFallback = form.querySelector('[data-status-fallback]');
+    const submit = form.querySelector('button[type="submit"]');
+    const controls = Array.from(form.querySelectorAll('[data-nominate-control]'));
+
+    // With JS off this never runs, and native validation still guards the post.
+    form.setAttribute('novalidate', '');
+
+    const errorFor = (control) => document.getElementById(control.dataset.errorId || `${control.id}-error`);
+
+    const messageFor = (control) => {
+      if (control.validity.valueMissing) return control.type === 'radio' ? 'Please choose Yes or No.' : 'Please fill this in.';
+      if (control.validity.typeMismatch && control.type === 'email') return 'That does not look like an email address.';
+      return control.validationMessage || 'Please check this field.';
+    };
+
+    // A radio group shares one error, so mark every radio in it together.
+    const groupOf = (control) =>
+      control.type === 'radio' ? controls.filter((c) => c.name === control.name) : [control];
+
+    const showError = (control, text) => {
+      groupOf(control).forEach((c) => {
+        c.classList.add('is-invalid');
+        c.setAttribute('aria-invalid', 'true');
+      });
+      const error = errorFor(control);
+      if (error) {
+        error.textContent = text;
+        error.hidden = false;
+      }
+    };
+
+    const clearError = (control) => {
+      groupOf(control).forEach((c) => {
+        c.classList.remove('is-invalid');
+        c.removeAttribute('aria-invalid');
+      });
+      const error = errorFor(control);
+      if (error) {
+        error.textContent = '';
+        error.hidden = true;
+      }
+    };
+
+    controls.forEach((control) => {
+      const recheck = () => {
+        if (control.classList.contains('is-invalid') && control.checkValidity()) clearError(control);
+      };
+      control.addEventListener('input', recheck);
+      control.addEventListener('change', recheck);
+      control.addEventListener('blur', recheck);
+    });
+
+    const setStatus = (heading, body, tone, withFallback) => {
+      if (!status) return;
+      status.dataset.tone = tone;
+      if (statusHeading) statusHeading.textContent = heading;
+      if (statusBody) statusBody.textContent = body;
+      if (statusFallback) statusFallback.hidden = !withFallback;
+      status.hidden = false;
+    };
+
+    const showThanks = () => {
+      if (fields) fields.hidden = true;
+      if (actions) actions.hidden = true;
+      setStatus(config.copy.successHeading, config.copy.successBody, 'success', false);
+      if (status) {
+        status.setAttribute('tabindex', '-1');
+        status.focus();
+      }
+    };
+
+    form.addEventListener('submit', async (event) => {
+      event.preventDefault();
+
+      let firstInvalid = null;
+      const seen = new Set();
+      controls.forEach((control) => {
+        const key = control.type === 'radio' ? `radio:${control.name}` : control.id;
+        if (seen.has(key)) return;
+        seen.add(key);
+        if (control.checkValidity()) {
+          clearError(control);
+        } else {
+          showError(control, messageFor(control));
+          if (!firstInvalid) firstInvalid = control;
+        }
+      });
+      if (firstInvalid) {
+        firstInvalid.focus();
+        return;
+      }
+
+      // Honeypot: a filled trap is a bot. Thank it and send nothing.
+      const trap = form.querySelector('[name="website"]');
+      if (trap && trap.value.trim() !== '') {
+        showThanks();
+        return;
+      }
+
+      if (!config.endpoint) {
+        setStatus(config.copy.unconfiguredHeading, config.copy.unconfiguredBody, 'error', true);
+        return;
+      }
+
+      const sourcePage = form.querySelector('[data-source-page]');
+      const submittedAt = form.querySelector('[data-submitted-at]');
+      if (sourcePage) sourcePage.value = window.location.pathname;
+      if (submittedAt) submittedAt.value = new Date().toISOString();
+
+      if (submit) {
+        submit.disabled = true;
+        submit.textContent = config.copy.submitting;
+      }
+      if (status) status.hidden = true;
+
+      try {
+        const body = new URLSearchParams();
+        new FormData(form).forEach((value, key) => {
+          if (key !== 'website') body.append(key, String(value));
+        });
+        // An unticked box submits nothing; send it empty so the mapping holds.
+        if (!body.has('happyToBeContacted')) body.append('happyToBeContacted', '');
+
+        const response = await fetch(config.endpoint, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8' },
+          body: body.toString(),
+        });
+        if (!response.ok) throw new Error(`Webhook responded ${response.status}`);
+
+        showThanks();
+      } catch (error) {
+        console.error('[FORM] nomination submit failed', error);
+        setStatus(config.copy.errorHeading, config.copy.errorBody, 'error', true);
+        if (submit) {
+          submit.disabled = false;
+          submit.textContent = config.copy.submit;
+        }
+      }
+    });
+  });
+</script>
+
+<style>
+  .nominate {
+    padding-block: var(--space-2xl);
+    background: var(--color-surface-muted);
+    /* Clear the sticky header when a "Nominate a property" button jumps here. */
+    scroll-margin-top: var(--space-xl);
+  }
+
+  .nominate__inner {
+    max-width: var(--container-narrow);
+  }
+
+  .nominate__intro {
+    margin-bottom: var(--space-lg);
+  }
+
+  .nominate__intro :is(h2, h3) {
+    margin-bottom: var(--space-sm);
+  }
+
+  /* Same treatment as ContactForm's kicker. */
+  .nominate__kicker {
+    font-family: var(--font-display);
+    font-weight: var(--weight-heading);
+    font-size: var(--text-small);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    margin-bottom: var(--space-xs);
+    opacity: 0.75;
+  }
+
+  /* Name across both columns, then phone / email, nominee / town, then the
+     story, the question and the tick across both. */
+  .nominate__grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-md);
+  }
+
+  .field--full {
+    grid-column: 1 / -1;
+  }
+
+  /* An author `display` outranks the UA `[hidden]` rule; restore it. */
+  .nominate__grid[hidden],
+  .nominate__actions[hidden] {
+    display: none;
+  }
+
+  .field {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3xs);
+    min-width: 0;
+  }
+
+  .field__group {
+    border: 0;
+    margin: 0;
+    padding: 0;
+  }
+
+  .field__label {
+    font-family: var(--font-display);
+    font-weight: var(--weight-heading);
+    font-size: var(--text-base);
+    color: var(--color-on-surface);
+  }
+
+  legend.field__label {
+    padding: 0;
+    margin-bottom: var(--space-3xs);
+  }
+
+  .field__req {
+    color: var(--color-accent);
+    margin-inline-start: 0.15em;
+  }
+
+  /* Field styling matches ContactForm.astro; see its notes for the border. */
+  .field__control {
+    width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
+    padding: var(--space-sm) var(--space-md);
+    font-family: var(--font-body);
+    font-size: var(--text-base);
+    line-height: var(--leading-normal);
+    color: var(--color-on-surface);
+    background: var(--color-surface);
+    border: 1px solid color-mix(in srgb, var(--color-on-surface) 28%, transparent);
+    border-radius: var(--radius-sm);
+    transition: border-color var(--duration-fast) var(--ease-standard),
+      box-shadow var(--duration-fast) var(--ease-standard);
+  }
+
+  .field__control:hover {
+    border-color: color-mix(in srgb, var(--color-on-surface) 60%, transparent);
+  }
+
+  .field__control.is-invalid {
+    border-color: #A3341F;
+    box-shadow: 0 0 0 1px #A3341F;
+  }
+
+  .field__control--textarea {
+    resize: vertical;
+    min-height: 9rem;
+  }
+
+  .field__choices {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-sm);
+  }
+
+  .field__choice,
+  .field__check {
+    display: flex;
+    align-items: center;
+    gap: var(--space-xs);
+    font-family: var(--font-body);
+    font-size: var(--text-base);
+    color: var(--color-on-surface);
+    cursor: pointer;
+  }
+
+  .field__choice {
+    padding: var(--space-xs) var(--space-md);
+    background: var(--color-surface);
+    border: 1px solid color-mix(in srgb, var(--color-on-surface) 28%, transparent);
+    border-radius: var(--radius-sm);
+  }
+
+  .field__choice:has(input.is-invalid) {
+    border-color: #A3341F;
+  }
+
+  .field__choice input,
+  .field__check input {
+    width: 1.15rem;
+    height: 1.15rem;
+    margin: 0;
+    accent-color: var(--color-brand);
+  }
+
+  .field__error {
+    font-family: var(--font-body);
+    font-size: var(--text-small);
+    color: #A3341F;
+  }
+
+  .nominate__trap {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+  }
+
+  .nominate__status {
+    margin-top: var(--space-md);
+    padding: var(--space-md);
+    border-radius: var(--radius-md);
+    border: 1px solid var(--color-border-muted);
+    background: var(--color-surface);
+  }
+
+  .nominate__status:focus {
+    outline: none;
+  }
+
+  .nominate__status[data-tone='success'] {
+    border-color: var(--color-accent);
+  }
+
+  .nominate__status[data-tone='error'] {
+    border-color: #A3341F;
+  }
+
+  .nominate__status-heading {
+    font-family: var(--font-display);
+    font-weight: var(--weight-heading);
+    font-size: var(--title-7);
+    color: var(--color-on-surface);
+    margin-bottom: var(--space-3xs);
+  }
+
+  .nominate__fallback {
+    margin-top: var(--space-xs);
+    padding-inline-start: var(--space-md);
+  }
+
+  .nominate__actions {
+    margin-top: var(--space-md);
+  }
+
+  /* mirrors --bp-md */
+  @media (max-width: 768px) {
+    .nominate__grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

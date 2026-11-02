@@ -1467,6 +1467,52 @@ content:
             description: "\"What does it pay?\" is left out until there is an award and pay band to name. Never fill it with \"competitive rates\"."
           - { name: checkingUs, component: sectionIntro, label: "Checking us out first? (links to the team pages)" }
           - { name: closingCta, component: callToAction, label: "Closing call to action" }
+      - name: local-care
+        label: TLB Local Care (not live yet)
+        type: file
+        path: src/content/pages/local-care.yaml
+        format: yaml
+        fields:
+          - { name: seo, component: seo }
+          - name: nominateCta
+            component: link
+            label: "Nominate button (hero and Who you can nominate)"
+            description: "Jumps to the nomination form (#nominate). Avoid \"win\" and \"prize\" anywhere on this page, so Local Care reads as a choice, not a giveaway."
+          - name: hero
+            component: hero
+            description: The video below replaces this photo while it is filled in. The Shed House pilot stays off this page.
+          - name: heroVideo
+            label: Hero video (replaces the photo)
+            type: object
+            description: "A Google Drive link ending in /preview, or a YouTube /embed/ link. The Drive file must be shared as \"Anyone with the link can view\". Clear both fields to show the photo again."
+            fields:
+              - { name: src, label: Video link, type: string }
+              - { name: title, label: Short description for screen readers, type: string }
+          - name: howItWorks
+            component: textGrid
+            label: "How it works (four steps)"
+            description: Step 4 and the FAQ about being shown online both promise written consent and no address. Keep them in step.
+          - { name: whoCanNominate, component: textBlock, label: "Who you can nominate" }
+          - name: faq
+            component: faq
+            label: "Your questions"
+            description: "Still to confirm with James: how the property is chosen, and whether TLB still does the job if the owner says no to filming."
+          - name: nominate
+            label: "Nomination form (closing section)"
+            type: object
+            description: "The form's fields are set in code. The thank-you and error messages are not in the Local Care copy doc yet, so get them signed off with the rest."
+            fields:
+              - { name: kicker, label: Small label above the heading, type: string }
+              - { name: heading, label: Heading, type: string, required: true }
+              - { name: lead, label: Intro sentence, type: text }
+              - { name: submitLabel, label: Send button, type: string, required: true }
+              - { name: submittingLabel, label: Send button while sending, type: string, required: true }
+              - { name: successHeading, label: Thank-you heading, type: string, required: true }
+              - { name: successBody, label: Thank-you message, type: text, required: true }
+              - { name: errorHeading, label: "Did not send: heading", type: string, required: true }
+              - { name: errorBody, label: "Did not send: message", type: text, required: true }
+              - { name: unconfiguredHeading, label: "Not connected yet: heading", type: string, required: true }
+              - { name: unconfiguredBody, label: "Not connected yet: message", type: text, required: true }
       - name: contact-page
         label: Contact
         type: file

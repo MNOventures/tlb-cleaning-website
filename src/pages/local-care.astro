@@ -1,0 +1,204 @@
+---
+// TLB Local Care. Once a month the team gives one nominated property a full
+// day of work at no cost; this page explains it and takes nominations.
+//
+// SOURCE OF TRUTH: "TLB Local Care: landing page copy (draft)", the Claude doc
+// at https://claude.ai/artifact/4uhJj23WPPEa4coYKRMmer. The meta title and
+// description, every line of page copy, the FAQs and the nomination fields
+// come from it. The layout started from the client's standalone
+// tlb-local-care.html mock-up, rebuilt here from the site's own sections.
+// Sections in that mock-up the doc does not have (why we do it, who we would
+// love to help, the video row) are left out on purpose.
+//
+// NOT APPROVED YET, SO KEPT OUT OF SEARCH AND OUT OF THE MENU:
+//   - `noindex` on Base: production gets `noindex, follow`, and
+//     integrations/sitemap.mjs leaves it out of sitemap.xml.
+//   - No menu or footer link points here. Its breadcrumb label comes from
+//     `notInMenu` in breadcrumbs.ts. When James signs it off, add it to the
+//     menu (the doc suggests Meet the team or Why TLB), drop `noindex` and
+//     the notInMenu row, and confirm the URL, which is also his call.
+//
+// BLOCKS LAUNCH, from the doc's "For James before this goes live":
+//  1. THE HERO VIDEO. "TLB Ad 2 - TLB Local Care.mp4" on Google Drive, added
+//     at the client's request on 3 Nov 2026. The doc keeps TLB-30 (the Shed
+//     House pilot) off this page; confirm this ad is not cut from it. The
+//     Drive file must stay shared as "Anyone with the link can view", or
+//     visitors get a sign-in box instead of the video.
+//  2. NOMINATION MECHANICS. Selection approach, the monthly close date, and
+//     whether TLB still does the job if the owner says no to filming. The two
+//     FAQs that carried "[Confirm …]" notes in the doc say only what is known.
+//  3. THE FORM HAS NO ENDPOINT. PUBLIC_NOMINATION_WEBHOOK_URL is unset, so it
+//     refuses to submit (see src/data/nominationForm.ts). It needs its own
+//     Zapier hook and board, separate from enquiries: NOMINATION-FORM-SETUP.md.
+//  4. PROMOTION RULES. The copy avoids "win" and "prize" so Local Care reads
+//     as a choice, not a chance giveaway under NSW and QLD rules. Keep it so.
+import Base from '../layouts/Base.astro';
+import { pageSchema } from '../data/schema';
+import SiteHeader from '../components/sections/SiteHeader.astro';
+import Hero from '../components/sections/Hero.astro';
+import ContentGrid from '../components/sections/ContentGrid.astro';
+import TextBlock from '../components/sections/TextBlock.astro';
+import Faq from '../components/sections/Faq.astro';
+import NominationForm from '../components/sections/NominationForm.astro';
+import SiteFooter from '../components/sections/SiteFooter.astro';
+import logoImg from '../assets/logo/tlb-logo-horizontal.png';
+import footerLogoImg from '../assets/logo/tlb-logo-square.png';
+import {
+  primaryNav,
+  headerNav,
+  headerSecondaryCta,
+  footerServiceLinks,
+  footerLocationLinks,
+  footerContact,
+  footerSocialLinks,
+  footerCopyright,
+  quoteCta,
+} from '../data/navigation';
+import { meetTheTeamBusiness } from '../data/meetTheTeam';
+import { z } from 'astro/zod';
+import { getPage } from '../lib/cms';
+import * as section from '../lib/cms-schemas';
+import { sized } from '../lib/cms-schemas';
+
+// "Nominate a property" is the page's one call to action, repeated (hero,
+// after "Who you can nominate", and the form's own button at the close). It
+// jumps to the form rather than using the site-wide quote button: nobody here
+// is pricing a clean.
+
+// How it works: four numbered step cards, four columns, each step's bold
+// lead-in from the doc as its heading (trailing full stop dropped, since it is
+// a heading now). Collapses to two, then one, on narrower screens.
+
+// The FAQ "Will the property be shown online?" and step 4 both promise
+// written consent and no address on screen. Keep the two in step.
+
+// The closing "Know someone who could use a hand?" is the form's own heading,
+// and its "Nominate a property" button is the form's submit, so the doc's
+// third button sends the nomination instead of scrolling to it.
+
+// CONTENT lives in src/content/pages/local-care.yaml and is edited in Pages
+// CMS ("TLB Local Care"). This file owns the layout.
+const page = await getPage(
+  'local-care',
+  z.object({
+    seo: section.seo,
+    nominateCta: section.link,
+    hero: section.hero,
+    // Shown in the hero's media panel in place of the photo when filled in.
+    // Both fields optional so clearing them in the editor means "no video".
+    heroVideo: section.optional(
+      z.object({ src: section.optional(section.pageHref), title: section.optional(section.text) }),
+    ),
+    howItWorks: section.textGrid,
+    whoCanNominate: section.textBlock,
+    faq: section.faq,
+    nominate: z.object({
+      kicker: section.optional(section.text),
+      heading: section.text,
+      lead: section.optional(section.text),
+      submitLabel: section.text,
+      submittingLabel: section.text,
+      successHeading: section.text,
+      successBody: section.text,
+      errorHeading: section.text,
+      errorBody: section.text,
+      unconfiguredHeading: section.text,
+      unconfiguredBody: section.text,
+    }),
+  }),
+);
+
+const pageMeta = {
+  ...page.seo,
+  canonical: 'https://tlbcleaning.com.au/local-care/',
+};
+
+const business = meetTheTeamBusiness(pageMeta.description);
+
+const nominateCta = page.nominateCta;
+
+const heroImage = page.hero.image && sized(page.hero.image, '4/3');
+
+const heroVideo = page.heroVideo?.src
+  ? { src: page.heroVideo.src, title: page.heroVideo.title ?? 'TLB Local Care video' }
+  : undefined;
+
+const stepBlocks = page.howItWorks.items.map((item) => ({ type: 'text' as const, ...item }));
+
+const schema = pageSchema({ url: pageMeta.canonical, title: pageMeta.title, type: 'WebPage' });
+---
+
+<Base
+  title={pageMeta.title}
+  description={pageMeta.description}
+  canonical={pageMeta.canonical}
+  business={business}
+  schema={schema}
+  noindex
+>
+  <SiteHeader
+    logo={{ label: 'TLB Cleaning', src: logoImg }}
+    primaryNav={primaryNav}
+    serviceNav={headerNav}
+    secondaryCta={headerSecondaryCta}
+    cta={quoteCta}
+  />
+
+  <main id="main">
+    <Hero
+      variant="split-single-image"
+      imagePosition="right"
+      kicker={page.hero.kicker}
+      headingLines={page.hero.headingLines}
+      subheading={page.hero.subheading}
+      lead={page.hero.lead}
+      cta={page.hero.cta ?? nominateCta}
+      image={heroImage}
+      video={heroVideo}
+    />
+
+    <ContentGrid heading={page.howItWorks.heading} lead={page.howItWorks.lead} columns={4} numbered blocks={stepBlocks} />
+
+    <TextBlock
+      theme="muted"
+      align="left"
+      heading={page.whoCanNominate.heading}
+      body={page.whoCanNominate.body}
+      cta={page.whoCanNominate.cta ?? nominateCta}
+      backgroundImage={page.whoCanNominate.backgroundImage}
+    />
+
+    <Faq heading={page.faq.heading} lead={page.faq.lead} items={page.faq.items} />
+
+    <NominationForm
+      kicker={page.nominate.kicker}
+      heading={page.nominate.heading}
+      lead={page.nominate.lead}
+      submitLabel={page.nominate.submitLabel}
+      submittingLabel={page.nominate.submittingLabel}
+      successHeading={page.nominate.successHeading}
+      successBody={page.nominate.successBody}
+      errorHeading={page.nominate.errorHeading}
+      errorBody={page.nominate.errorBody}
+      unconfiguredHeading={page.nominate.unconfiguredHeading}
+      unconfiguredBody={page.nominate.unconfiguredBody}
+      fallbackPhone={footerContact.phone}
+      fallbackEmail={footerContact.email}
+    />
+  </main>
+
+  {/* No footer enquiry form: a second form asking for a name, phone and
+      message, straight under the nomination form, would catch nominations
+      as quote requests. */}
+  <SiteFooter
+    logo={{ label: 'TLB Cleaning', src: footerLogoImg }}
+    columns={[
+      { title: 'Services', links: footerServiceLinks },
+      { title: 'Locations', links: footerLocationLinks },
+    ]}
+    contact={footerContact}
+    socialLinks={footerSocialLinks}
+    copyright={footerCopyright}
+    enquiryForm={false}
+  />
+</Base>

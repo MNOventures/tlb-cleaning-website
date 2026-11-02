@@ -20,6 +20,8 @@ export interface Crumb {
 
 const notInMenu = new Map<string, string>([
   ['/thank-you/', 'Thank you'],
+  // Not approved yet, so in no menu (see local-care.astro). Remove once it is.
+  ['/local-care/', 'TLB Local Care'],
   // Towns not yet live in the menu still have a page; their crumb is the name.
   ...allTowns.map((town): [string, string] => [townSlug(town), town]),
 ]);
