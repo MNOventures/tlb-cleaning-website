@@ -58,10 +58,18 @@ interface Props {
   lead?: string;
   /** Default 3. StoryMosaic.astro is the established 2-column text/image component — use `columns={2}` here only when you specifically want it duplicated (see SECTIONS.md), not as the default choice. */
   columns?: number;
+  /** Steps in order: each cell becomes an outlined card with a numbered
+   *  circle above its heading, and the grid is an <ol>, so the order is in
+   *  the markup and not only in the drawn numbers. Meant for text cells. */
+  numbered?: boolean;
   blocks: ContentGridBlock[];
 }
 
-const { heading, lead, columns = 3, blocks } = Astro.props;
+const { heading, lead, columns = 3, numbered = false, blocks } = Astro.props;
+
+// An ordered list when the cells are numbered steps, plain divs otherwise.
+const GridTag = numbered ? 'ol' : 'div';
+const CellTag = numbered ? 'li' : 'div';
 
 const { Heading, Subheading } = sectionHeadingTags(heading);
 
@@ -104,9 +112,9 @@ const cells = blocks.map((block) => {
       </div>
     )}
 
-    <div class:list={['content-grid__grid', `content-grid__grid--cols-${columns}`]}>
+    <GridTag class:list={['content-grid__grid', `content-grid__grid--cols-${columns}`, { 'content-grid__grid--numbered': numbered }]}>
       {cells.map(({ block, span, tone }) => (
-        <div
+        <CellTag
           class:list={[
             'content-grid__cell',
             `content-grid__cell--${block.type}`,
@@ -140,9 +148,9 @@ const cells = blocks.map((block) => {
               ))}
             </>
           )}
-        </div>
+        </CellTag>
       ))}
-    </div>
+    </GridTag>
   </div>
 </section>
 
@@ -265,6 +273,45 @@ const cells = blocks.map((block) => {
     width: 100%;
     height: 100%;
     border-radius: 0;
+  }
+
+  /* `numbered`: outlined cards, each opened by a numbered circle. The number
+     is a CSS counter, decorative only: the <ol> already gives the order to
+     assistive tech. Cards align to the top, so the circles and headings sit
+     on one line across the row however long each body runs. */
+  .content-grid__grid--numbered {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    counter-reset: content-grid-step;
+  }
+
+  .content-grid__grid--numbered .content-grid__cell {
+    counter-increment: content-grid-step;
+    justify-content: flex-start;
+    border: 1px solid var(--color-border-muted);
+  }
+
+  /* A step's heading is a short label under its number, not a cell title:
+     one size down, so four across do not wrap to three lines each. */
+  .content-grid__grid--numbered .content-grid__cell :is(h3, h4) {
+    font-size: var(--title-7);
+  }
+
+  .content-grid__grid--numbered .content-grid__cell::before {
+    content: counter(content-grid-step);
+    display: grid;
+    place-items: center;
+    flex-shrink: 0;
+    width: 40px;
+    height: 40px;
+    margin-bottom: var(--space-sm);
+    border-radius: 50%;
+    background: var(--color-brand);
+    color: var(--color-on-inverse);
+    font-family: var(--font-display);
+    font-weight: var(--weight-heading);
+    font-size: var(--text-base);
   }
 
   /* mirrors --bp-lg — 3- and 4-col grids drop to 2; already-2-col grids are
