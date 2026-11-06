@@ -18,7 +18,7 @@ hero:
     alt: Two TLB cleaners presenting the cushions on a freshly made bed in a holiday
       home bedroom
   cta:
-    label: Talk to us today
+    label: Get a fast quote
     href: quote
 trustBar:
   clientsDescription: Over 100 local homes, hosts and businesses served
@@ -82,7 +82,7 @@ pathways:
         asking you to relay it, so the turnover happens without you organising
         it.
       cta:
-        label: Talk to us today
+        label: Get a fast quote
         href: quote
     - image:
         src: /src/assets/home_cleaning/inside_your_home/deep_cleaning/deep-cleaning-cleaner-tidying-a-shower-niche.jpg
@@ -142,7 +142,7 @@ turnover:
         guest who plainly had twelve people in a six-berth house, you hear about
         it from us the same day, in time to do something about it.
   cta:
-    label: Talk to us today
+    label: Get a fast quote
     href: quote
 levels:
   heading: Choose your level
@@ -281,7 +281,7 @@ ownersAway:
         - One contact for the whole property, so there's one local number to
           ring instead of a cleaner, a handyman and a key box.
   cta:
-    label: Talk to us today
+    label: Get a fast quote
     href: quote
 propertyTypes:
   heading: What we turn over
@@ -430,5 +430,5 @@ closingCta:
   lead: We look at the property, ask how often it turns over and what presentation
     you want, and put a price and a scope in writing. No lock-in, no obligation.
   cta:
-    label: Talk to us today
+    label: Get a fast quote
     href: quote
