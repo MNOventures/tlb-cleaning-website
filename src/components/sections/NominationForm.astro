@@ -30,7 +30,7 @@ import { allTowns } from '../../data/locations';
 import { sectionHeadingTags } from '../../lib/headings';
 
 interface Props {
-  /** The anchor every "Nominate a property" button on the page jumps to. */
+  /** The anchor every "Nominate someone you know" button on the page jumps to. */
   id?: string;
   kicker?: string;
   heading: string;
@@ -376,7 +376,7 @@ const config = {
   .nominate {
     padding-block: var(--space-2xl);
     background: var(--color-surface-muted);
-    /* Clear the sticky header when a "Nominate a property" button jumps here. */
+    /* Clear the sticky header when a "Nominate someone you know" button jumps here. */
     scroll-margin-top: var(--space-xl);
   }
 

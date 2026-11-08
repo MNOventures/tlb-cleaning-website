@@ -3,7 +3,7 @@ seo:
   description: Once a month our local team gives one property a full day of work,
     at no cost. Nominate a neighbour, a hall or a family across the region.
 nominateCta:
-  label: Nominate a property
+  label: Nominate someone you know
   href: "#nominate"
 hero:
   headingLines:
@@ -71,7 +71,7 @@ faq:
 nominate:
   heading: Know someone who could use a hand?
   lead: Tell us who they are and why. Next month, it could be them.
-  submitLabel: Nominate a property
+  submitLabel: Nominate someone you know
   submittingLabel: Sending…
   successHeading: Thank you for telling us.
   successBody: Our team reads every nomination and chooses one property each month.

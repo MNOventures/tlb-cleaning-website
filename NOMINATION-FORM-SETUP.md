@@ -120,7 +120,7 @@ reply email, a screenshot, a post).
    (Or set the variable on the **staging** Render service and test there.)
 2. Fill in every field, choose **Yes** for "Do they know you're nominating
    them?", tick **"They're happy to be contacted"**, and press
-   **Nominate a property**. The form should be replaced by "Thank you for
+   **Nominate someone you know**. The form should be replaced by "Thank you for
    telling us."
 3. In Zapier, click **Test trigger**. You should see the ten fields below.
 
