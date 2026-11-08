@@ -120,7 +120,10 @@ const nominateCta = page.nominateCta;
 const heroImage = page.hero.image && sized(page.hero.image, '4/3');
 
 const heroVideo = page.heroVideo?.src
-  ? { src: page.heroVideo.src, title: page.heroVideo.title ?? 'TLB Local Care video' }
+  ? // The ad is a 9:16 reel. Shown at that shape it towers over the copy, so
+    // the hero crops it to 4:5. That still keeps both opening captions in
+    // view (1:1 cuts into the first one) but hides Drive's control bar.
+    { src: page.heroVideo.src, title: page.heroVideo.title ?? 'TLB Local Care video', frame: '4/5' }
   : undefined;
 
 const stepBlocks = page.howItWorks.items.map((item) => ({ type: 'text' as const, ...item }));

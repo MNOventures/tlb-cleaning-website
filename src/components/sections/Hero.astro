@@ -105,8 +105,14 @@ interface Props {
    *  `/preview` link or a YouTube `/embed/` link), `title` names the iframe
    *  for screen readers, `ratio` is the video's own shape (default '9/16',
    *  a phone-shot reel). The frame keeps that shape inside the panel rather
-   *  than stretching to it, because a player letterboxes anything else. */
-  video?: { src: string; title: string; ratio?: string };
+   *  than stretching to it, because a player letterboxes anything else.
+   *  `frame` is an optional, squatter shape for the visible window (say
+   *  '4/5' for a 9/16 reel): the player keeps its real shape behind it and
+   *  the top and bottom are cropped evenly, so there are no black bars. The
+   *  cost is that whatever the player draws in the cropped strips, such as
+   *  Drive's control bar, is hidden; clicking the video still plays and
+   *  pauses it. */
+  video?: { src: string; title: string; ratio?: string; frame?: string };
   /** full-width-photo only: how wide the floating copy card runs at desktop
    *  widths. Default 'default' (480px), which is the width every caller had
    *  before this prop existed — the 56 /locations/<town>/ pages included, so
@@ -259,7 +265,10 @@ const collageColB = collageImages.filter((_, i) => i % 2 === 1);
     <div class="hero__grid">
       <div class:list={['hero__media', { 'hero__media--video': video }]}>
         {video ? (
-          <div class="hero__video" style={`--hero-video-ratio: ${video.ratio ?? '9/16'}`}>
+          <div
+            class="hero__video"
+            style={`--hero-video-ratio: ${video.ratio ?? '9/16'}; --hero-video-frame: ${video.frame ?? video.ratio ?? '9/16'}`}
+          >
             <iframe src={video.src} title={video.title} allow="autoplay; fullscreen" allowfullscreen></iframe>
           </div>
         ) : (
@@ -699,17 +708,23 @@ const collageColB = collageImages.filter((_, i) => i % 2 === 1);
     position: relative;
     width: 360px;
     max-width: 100%;
-    aspect-ratio: var(--hero-video-ratio);
+    aspect-ratio: var(--hero-video-frame);
     border-radius: var(--radius-md);
     overflow: hidden;
     background: #11191C;
   }
 
+  /* The player always keeps the video's own shape and is centred top to
+     bottom in the frame. With no `frame` the two shapes match and it fills
+     the frame exactly; with a squatter `frame` the overflow: hidden above
+     crops the same amount off the top and the bottom. */
   .hero__video iframe {
     position: absolute;
-    inset: 0;
+    top: 50%;
+    left: 0;
     width: 100%;
-    height: 100%;
+    aspect-ratio: var(--hero-video-ratio);
+    transform: translateY(-50%);
     border: 0;
   }
 
@@ -766,6 +781,30 @@ const collageColB = collageImages.filter((_, i) => i % 2 === 1);
 
     .hero--split-single-wide.hero--split-single-reverse .hero__grid {
       grid-template-columns: var(--hero-gutter) 1fr 1.5fr;
+    }
+
+    /* A photo bleeds off the page edge, but a video player is content and
+       should stay inside the container line like the copy does. Without
+       this the player centres in the full-bleed half and, on a wide screen,
+       lands well past where every other section's content stops. Padding
+       the outer side by the gutter centres it between the copy and that
+       line instead.
+
+       --hero-gutter can't be reused here: its 100% means the page width in
+       the grid template, but in padding it would mean this panel's width.
+       So the hero becomes a size container and the same sum is written in
+       cqw, which is the hero's full width wherever it is used. */
+    .hero--split-single:has(.hero__media--video) {
+      container-type: inline-size;
+      --hero-video-gutter: max(var(--space-md), calc((100cqw - var(--container)) / 2 + var(--space-md)));
+    }
+
+    .hero--split-single .hero__media--video {
+      padding-inline-start: var(--hero-video-gutter);
+    }
+
+    .hero--split-single-reverse .hero__media--video {
+      padding-inline: 0 var(--hero-video-gutter);
     }
   }
 
