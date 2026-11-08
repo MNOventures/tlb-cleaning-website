@@ -71,7 +71,7 @@ faq:
 nominate:
   heading: Know someone who could use a hand?
   lead: Tell us who they are and why. Next month, it could be them.
-  submitLabel: Nominate someone you know
+  submitLabel: Send my nomination
   submittingLabel: Sending…
   successHeading: Thank you for telling us.
   successBody: Our team reads every nomination and chooses one property each month.

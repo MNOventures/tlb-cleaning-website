@@ -60,10 +60,9 @@ import { getPage } from '../lib/cms';
 import * as section from '../lib/cms-schemas';
 import { sized } from '../lib/cms-schemas';
 
-// "Nominate someone you know" is the page's one call to action, repeated (hero,
-// after "Who you can nominate", and the form's own button at the close). It
-// jumps to the form rather than using the site-wide quote button: nobody here
-// is pricing a clean.
+// "Nominate someone you know" is the page's one call to action, shown twice
+// (hero, and after "Who you can nominate"). It jumps to the form rather than
+// using the site-wide quote button: nobody here is pricing a clean.
 
 // How it works: four numbered step cards, four columns, each step's bold
 // lead-in from the doc as its heading (trailing full stop dropped, since it is
@@ -73,8 +72,9 @@ import { sized } from '../lib/cms-schemas';
 // written consent and no address on screen. Keep the two in step.
 
 // The closing "Know someone who could use a hand?" is the form's own heading,
-// and its "Nominate someone you know" button is the form's submit, so the doc's
-// third button sends the nomination instead of scrolling to it.
+// and the doc's third button is the form's submit, so it sends the nomination
+// instead of scrolling to it. It reads "Send my nomination" rather than
+// repeating the jump buttons, so it is clear this one sends.
 
 // CONTENT lives in src/content/pages/local-care.yaml and is edited in Pages
 // CMS ("TLB Local Care"). This file owns the layout.
