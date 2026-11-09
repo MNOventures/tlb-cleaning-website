@@ -2224,6 +2224,15 @@ content:
             component: townPicker
             label: Nearby towns (optional)
             description: Leave empty to work them out from the map. Pick six to override.
+          - name: video
+            label: Video (optional)
+            type: object
+            description: "A real TLB job in or near this town, from YouTube. Shows beside a heading under the intro. Leave the link empty to show nothing. Only name a suburb TLB really worked in."
+            fields:
+              - { name: heading, label: Heading, type: string }
+              - { name: lead, label: Sentence beside the video, type: text }
+              - { name: src, label: YouTube link, type: string }
+              - { name: label, label: What the video shows, type: string }
 
       - name: regions
         label: Region pages
