@@ -756,6 +756,9 @@ components:
         type: string
         list: true
         required: true
+      - name: lead
+        label: Sentence beside the video
+        type: text
       - name: video
         type: object
         label: Video
@@ -767,6 +770,10 @@ components:
           - name: caption
             label: Caption
             type: string
+          - name: src
+            label: YouTube link
+            type: string
+            description: "Paste the video's YouTube link (a Shorts, watch or /embed/ link). Portrait reels show cropped to 4:5 beside the heading. Leave empty to hide this section."
 
   contactForm:
     type: object
@@ -1580,6 +1587,13 @@ content:
         fields:
           - { name: seo, component: seo }
           - { name: hero, component: hero }
+          - name: heroVideo
+            label: Hero video (replaces the photo)
+            type: object
+            description: "A YouTube /embed/ link, e.g. https://www.youtube.com/embed/VIDEO_ID. The portrait reel shows cropped to 4:5 with a play button, plays muted once in view, and goes back to its first frame at the end. Clear both fields to show the photo again."
+            fields:
+              - { name: src, label: Video link, type: string }
+              - { name: title, label: Short description for screen readers, type: string }
           - name: trustBar
             label: Trust bar (this page only)
             type: object
@@ -2210,6 +2224,15 @@ content:
             component: townPicker
             label: Nearby towns (optional)
             description: Leave empty to work them out from the map. Pick six to override.
+          - name: video
+            label: Video (optional)
+            type: object
+            description: "A real TLB job in or near this town, from YouTube. Shows beside a heading under the intro. Leave the link empty to show nothing. Only name a suburb TLB really worked in."
+            fields:
+              - { name: heading, label: Heading, type: string }
+              - { name: lead, label: Sentence beside the video, type: text }
+              - { name: src, label: YouTube link, type: string }
+              - { name: label, label: What the video shows, type: string }
 
       - name: regions
         label: Region pages
@@ -2422,7 +2445,7 @@ content:
           - { name: firstVisit, component: textBlock, label: "The first one takes longer" }
           - { name: buying, component: textBlock, label: "What you're actually buying (dark band)" }
           - { name: beforeAfter, component: beforeAfter, label: "Before and after" }
-          - { name: video, component: videoFeature, label: "Video (hidden on the site for now)" }
+          - { name: video, component: videoFeature, label: "Video (shows once a YouTube link is added)" }
           - name: booking
             component: textBlock
             label: "Easy to book (dark band)"
@@ -2575,7 +2598,7 @@ content:
           - { name: moments, component: textGrid, label: "When people book a deep clean (grid)" }
           - { name: comparison, component: comparisonTable, label: "Deep clean, regular clean or bond clean (table)" }
           - { name: beforeAfter, component: beforeAfter, label: "Before and after" }
-          - { name: video, component: videoFeature, label: "Video (hidden on the site for now)" }
+          - { name: video, component: videoFeature, label: "Video (shows once a YouTube link is added)" }
           - name: booking
             component: textBlock
             label: "Easy to book, fast quoting (dark band)"
@@ -2635,7 +2658,7 @@ content:
             label: "What an end of lease clean costs"
             description: "No price band until Teagan confirms one. Never publish a figure in [brackets]."
           - { name: beforeAfter, component: beforeAfter, label: "Before and after" }
-          - { name: video, component: videoFeature, label: "Video (hidden on the site for now)" }
+          - { name: video, component: videoFeature, label: "Video (shows once a YouTube link is added)" }
           - name: booking
             component: textBlock
             label: "Book it around the handover date (dark band)"

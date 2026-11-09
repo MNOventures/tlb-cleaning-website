@@ -437,6 +437,11 @@ const page = await getPage(
   z.object({
     seo: section.seo,
     hero: section.hero,
+    // Optional portrait video in the hero (hub #65). A YouTube /embed/ link;
+    // leave it empty to show the photo.
+    heroVideo: section.optional(
+      z.object({ src: section.optional(section.pageHref), title: section.optional(section.text) }),
+    ),
     // This page's wording on the shared "Over 100 clients" trust bar card.
     trustBar: z.object({ clientsDescription: section.text }),
     // Its background photo sits behind the trust bar and this block together
@@ -485,6 +490,12 @@ const business = localBusiness({
 });
 
 const heroImage = page.hero.image && sized(page.hero.image, '1/1');
+
+// Hub #65: the turnover reel replaces the photo while a link is set. A 9:16
+// reel is cropped to 4:5 in the hero, the same as the Local Care page.
+const heroVideo = page.heroVideo?.src
+  ? { src: page.heroVideo.src, title: page.heroVideo.title ?? 'A TLB holiday let turnover', frame: '4/5' }
+  : undefined;
 
 // Trust bar: the shared set, with this page's own wording on the client count.
 const pageTrustBarCards = trustBarCards.map((card) =>
@@ -539,6 +550,7 @@ const schema = pageSchema({
       lead={page.hero.lead}
       cta={page.hero.cta ?? quoteCta}
       image={heroImage}
+      video={heroVideo}
     />
 
     {/* The quote form sits straight under the hero on this page (9 Nov 2026). Most visitors here arrive from Meta ads and leave within seconds, so the form is where they land rather than at the foot of the page. Same site-wide form (id="enquiry"), so SiteFooter below skips its copy. */}

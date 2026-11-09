@@ -410,10 +410,12 @@ export const callToAction = z.object({
   cta: optional(link),
 });
 
-/** VideoFeature. Hidden sitewide until real video exists. */
+/** VideoFeature: a portrait YouTube video beside a heading. Hidden until a
+ *  YouTube link is filled in, so pages with an empty slot show nothing. */
 export const videoFeature = z.object({
   headingLines: z.array(text).min(1),
-  video: z.object({ label: text, caption: optional(text) }),
+  lead: optional(text),
+  video: z.object({ label: text, caption: optional(text), src: optional(text) }),
 });
 
 /** ContactForm's wording. Phone, email and the form's fields are site-wide. */

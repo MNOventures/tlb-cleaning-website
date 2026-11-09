@@ -1,39 +1,92 @@
 ---
-import VideoPlaceholder from '../ui/VideoPlaceholder.astro';
 import { sectionHeadingTags } from '../../lib/headings';
+
+// Portrait video block (hub task #62, November 2026). Every TLB reel is
+// portrait (9:16), so this shows one beside a short heading and text on
+// desktop and stacked under the copy on phones. It behaves like the YouTube
+// hero video on /local-care/: the video's own still with a play button, muted
+// autoplay once it is in view, "Tap for sound", and back to the still when it
+// ends or the visitor scrolls past.
+//
+// The window is cropped to 4:5 so a portrait reel never towers over the copy.
+// The player keeps its real 9:16 shape behind the window and the top and
+// bottom are trimmed evenly.
+//
+// The section only renders when `video.src` holds a YouTube link (an
+// /embed/, /shorts/, watch?v= or youtu.be link all work). With no link it
+// renders nothing, so pages that still hold an old placeholder slot (deep
+// cleaning, end of lease) stay as they are.
 
 interface Props {
   headingLines: string[];
-  video: { label: string; caption?: string; ratio?: string };
+  /** One or two sentences beside the video. Optional. */
+  lead?: string;
+  video: {
+    /** What the video shows. Used as the play button's accessible name. */
+    label: string;
+    caption?: string;
+    /** Kept for older callers; the block is always portrait. */
+    ratio?: string;
+    /** A YouTube link. Leave empty to hide the section. */
+    src?: string;
+  };
+  /** Which side the video sits on at desktop widths. Default 'right'. */
+  videoPosition?: 'left' | 'right';
 }
 
-const { headingLines, video } = Astro.props;
+const { headingLines, lead, video, videoPosition = 'right' } = Astro.props;
 
 const { Heading } = sectionHeadingTags(headingLines.join(' '));
 
-// ⚠️ HIDDEN ON EVERY PAGE (6 Oct 2026). This section can only render
-// VideoPlaceholder's dashed frame and no real video exists yet, so it was
-// showing visitors an empty "Walkthrough video of..." box. The callers (house
-// cleaning, deep cleaning, end of lease) keep their <VideoFeature> line and
-// copy, so the section returns from here: give it a real video to play, then
-// set this to true.
-const showSection = false;
+const ytId = (() => {
+  const src = video.src?.trim();
+  if (!src) return null;
+  const m = src.match(
+    /(?:youtube(?:-nocookie)?\.com\/(?:embed\/|shorts\/|live\/|watch\?(?:[^#]*&)?v=)|youtu\.be\/)([A-Za-z0-9_-]{11})/,
+  );
+  return m ? m[1] : null;
+})();
+
+const headingId = ytId ? `video-feature-${ytId}` : 'video-feature-heading';
 ---
 
-{showSection && (
-<section class="video-feature" aria-labelledby="video-feature-heading">
+{ytId && (
+<section
+  class:list={['video-feature', { 'video-feature--video-left': videoPosition === 'left' }]}
+  aria-labelledby={headingId}
+>
   <div class="container video-feature__inner">
-    <Heading id="video-feature-heading" class="title-2 video-feature__heading">
-      {headingLines.map((line) => (
-        <>
-          {line}
-          <br />
-        </>
-      ))}
-    </Heading>
+    <div class="video-feature__copy">
+      <Heading id={headingId} class="title-2 video-feature__heading">
+        {headingLines.map((line) => (
+          <>
+            {line}
+            <br />
+          </>
+        ))}
+      </Heading>
+      {lead && <p class="lead video-feature__lead">{lead}</p>}
+      {video.caption && <p class="video-feature__caption">{video.caption}</p>}
+    </div>
 
-    <div class="video-feature__frame">
-      <VideoPlaceholder ratio={video.ratio ?? '16/9'} label={video.label} caption={video.caption} />
+    <div class="video-feature__media">
+      <div class="video-feature__frame">
+        <div class="video-feature__yt" data-yt-id={ytId}>
+          <img
+            class="video-feature__poster"
+            src={`https://i.ytimg.com/vi/${ytId}/oardefault.jpg`}
+            onerror={`this.onerror=null;this.src='https://i.ytimg.com/vi/${ytId}/hqdefault.jpg'`}
+            alt=""
+            width="720"
+            height="1280"
+            loading="lazy"
+          />
+          <button type="button" class="video-feature__play" aria-label={`Play: ${video.label}`}>
+            <svg viewBox="0 0 24 24" width="30" height="30" aria-hidden="true"><path d="M8 5v14l11-7z" fill="currentColor" /></svg>
+          </button>
+          <button type="button" class="video-feature__sound">Tap for sound</button>
+        </div>
+      </div>
     </div>
   </div>
 </section>
@@ -42,22 +95,144 @@ const showSection = false;
 <style>
   .video-feature__inner {
     padding-block: var(--space-2xl);
+    display: grid;
+    grid-template-columns: 1fr 360px;
+    gap: var(--space-xl);
+    align-items: center;
+  }
+
+  .video-feature--video-left .video-feature__copy {
+    order: 2;
+  }
+
+  .video-feature--video-left .video-feature__inner {
+    grid-template-columns: 360px 1fr;
+  }
+
+  .video-feature__copy {
     display: flex;
     flex-direction: column;
-    align-items: center;
-    gap: var(--space-lg);
-    text-align: center;
+    gap: var(--space-md);
+    min-width: 0;
   }
 
   .video-feature__heading {
-    max-width: 26ch;
+    max-width: 22ch;
   }
 
+  .video-feature__lead {
+    max-width: 46ch;
+  }
+
+  .video-feature__caption {
+    font-size: var(--text-small);
+    opacity: 0.8;
+  }
+
+  .video-feature__media {
+    display: flex;
+    justify-content: center;
+  }
+
+  /* The visible window: 4:5, cropped evenly from the 9:16 player. */
   .video-feature__frame {
-    width: 100%;
-    max-width: 720px;
+    position: relative;
+    width: 360px;
+    max-width: 100%;
+    aspect-ratio: 4 / 5;
     border-radius: var(--radius-md);
     overflow: hidden;
+    background: #11191c;
+  }
+
+  .video-feature__yt {
+    position: absolute;
+    inset: 0;
+  }
+
+  .video-feature__poster,
+  .video-feature__yt :global(iframe) {
+    position: absolute;
+    top: 50%;
+    left: 0;
+    width: 100%;
+    height: auto;
+    aspect-ratio: 9 / 16;
+    transform: translateY(-50%);
+    border: 0;
+    object-fit: cover;
+  }
+
+  .video-feature__yt :global(iframe) {
+    z-index: 1;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+
+  .video-feature__yt.is-playing :global(iframe) {
+    opacity: 1;
+  }
+
+  .video-feature__play {
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    width: 72px;
+    height: 72px;
+    margin: auto;
+    display: grid;
+    place-items: center;
+    padding: 0 0 0 4px;
+    border: 0;
+    border-radius: 50%;
+    background: rgb(17 25 28 / 0.72);
+    color: #fff;
+    cursor: pointer;
+    transition: transform 0.2s ease, background 0.2s ease;
+  }
+
+  .video-feature__play:hover,
+  .video-feature__play:focus-visible {
+    transform: scale(1.06);
+    background: var(--tlb-green, #1f6b4f);
+  }
+
+  .video-feature__yt.is-playing .video-feature__play {
+    display: none;
+  }
+
+  .video-feature__sound {
+    position: absolute;
+    z-index: 2;
+    left: 50%;
+    bottom: var(--space-md, 16px);
+    transform: translateX(-50%);
+    display: none;
+    padding: 8px 16px;
+    border: 0;
+    border-radius: 999px;
+    background: rgb(17 25 28 / 0.78);
+    color: #fff;
+    font: inherit;
+    font-size: 0.875rem;
+    cursor: pointer;
+  }
+
+  .video-feature__yt.is-playing .video-feature__sound {
+    display: block;
+  }
+
+  /* mirrors --bp-lg: stack, copy first, video centred under it */
+  @media (max-width: 1025px) {
+    .video-feature__inner,
+    .video-feature--video-left .video-feature__inner {
+      grid-template-columns: 1fr;
+      gap: var(--space-lg);
+    }
+
+    .video-feature--video-left .video-feature__copy {
+      order: 0;
+    }
   }
 
   /* mirrors --bp-md */
@@ -65,5 +240,16 @@ const showSection = false;
     .video-feature__inner {
       padding-block: var(--space-xl);
     }
+
+    .video-feature__frame {
+      width: min(100%, 320px);
+    }
   }
 </style>
+
+<script>
+  // Same behaviour as the YouTube hero video (src/lib/yt-video.ts): starts on
+  // its own once in view, tries sound first, "Tap to mute" / "Tap for sound".
+  import { initYtVideos } from '../../lib/yt-video';
+  initYtVideos({ block: '.video-feature__yt', play: '.video-feature__play', sound: '.video-feature__sound' });
+</script>

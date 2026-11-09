@@ -20,6 +20,9 @@ hero:
   cta:
     label: Get a fast quote
     href: quote
+heroVideo:
+  src: https://www.youtube.com/embed/SIc1c7YwVfE
+  title: A TLB holiday let turnover, from stripping the beds to the finished, staged room
 trustBar:
   clientsDescription: Over 100 local homes, hosts and businesses served
 definition:

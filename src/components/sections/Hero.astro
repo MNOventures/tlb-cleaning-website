@@ -269,7 +269,24 @@ const collageColB = collageImages.filter((_, i) => i % 2 === 1);
             class="hero__video"
             style={`--hero-video-ratio: ${video.ratio ?? '9/16'}; --hero-video-frame: ${video.frame ?? video.ratio ?? '9/16'}`}
           >
-            <iframe src={video.src} title={video.title} allow="autoplay; fullscreen" allowfullscreen></iframe>
+            {video.src.includes('youtube') ? (
+              <div class="hero__yt" data-yt-id={video.src.split('/embed/')[1].split('?')[0]}>
+                <img
+                  class="hero__yt-poster"
+                  src={`https://i.ytimg.com/vi/${video.src.split('/embed/')[1].split('?')[0]}/oardefault.jpg`}
+                  alt=""
+                  width="720"
+                  height="1280"
+                  loading="eager"
+                />
+                <button type="button" class="hero__yt-play" aria-label={`Play: ${video.title}`}>
+                  <svg viewBox="0 0 24 24" width="30" height="30" aria-hidden="true"><path d="M8 5v14l11-7z" fill="currentColor" /></svg>
+                </button>
+                <button type="button" class="hero__yt-sound">Tap for sound</button>
+              </div>
+            ) : (
+              <iframe src={video.src} title={video.title} allow="autoplay; fullscreen" allowfullscreen></iframe>
+            )}
           </div>
         ) : (
           image && <Placeholder ratio={image.ratio ?? '4/3'} label={image.label} src={image.src} fit={imageFit} focus={imageFocus} eager />
@@ -1035,4 +1052,96 @@ const collageColB = collageImages.filter((_, i) => i % 2 === 1);
       border-top: none;
     }
   }
+
+  /* YouTube hero video: a poster (the video's own still) with a play button,
+     so the panel is never a blank box. It starts playing muted once it is in
+     view, "Tap for sound" turns the sound on, and when it ends it goes back
+     to the same poster (script at the bottom of this file). The poster and
+     the player both keep the video's own shape, centred in the frame, so the
+     handover from still to video does not jump. Elements the YouTube API adds
+     have no Astro scope attribute, hence :global on the iframe. */
+  .hero__yt {
+    position: absolute;
+    inset: 0;
+  }
+
+  .hero__yt-poster,
+  .hero__yt :global(iframe) {
+    position: absolute;
+    top: 50%;
+    left: 0;
+    width: 100%;
+    height: auto;
+    aspect-ratio: var(--hero-video-ratio);
+    transform: translateY(-50%);
+    border: 0;
+    object-fit: cover;
+  }
+
+  .hero__yt :global(iframe) {
+    z-index: 1;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+
+  .hero__yt.is-playing :global(iframe) {
+    opacity: 1;
+  }
+
+  .hero__yt-play {
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    width: 72px;
+    height: 72px;
+    margin: auto;
+    display: grid;
+    place-items: center;
+    padding: 0 0 0 4px;
+    border: 0;
+    border-radius: 50%;
+    background: rgb(17 25 28 / 0.72);
+    color: #fff;
+    cursor: pointer;
+    transition: transform 0.2s ease, background 0.2s ease;
+  }
+
+  .hero__yt-play:hover,
+  .hero__yt-play:focus-visible {
+    transform: scale(1.06);
+    background: var(--tlb-green, #1f6b4f);
+  }
+
+  .hero__yt.is-playing .hero__yt-play {
+    display: none;
+  }
+
+  .hero__yt-sound {
+    position: absolute;
+    z-index: 2;
+    left: 50%;
+    bottom: var(--space-md, 16px);
+    transform: translateX(-50%);
+    display: none;
+    padding: 8px 16px;
+    border: 0;
+    border-radius: 999px;
+    background: rgb(17 25 28 / 0.78);
+    color: #fff;
+    font: inherit;
+    font-size: 0.875rem;
+    cursor: pointer;
+  }
+
+  .hero__yt.is-playing .hero__yt-sound {
+    display: block;
+  }
 </style>
+
+<script>
+  // YouTube hero video: starts 2 seconds after the page opens, tries sound
+  // first and falls back to muted with "Tap for sound" (see src/lib/yt-video.ts).
+  import { initYtVideos } from '../../lib/yt-video';
+  initYtVideos({ block: '.hero__yt', play: '.hero__yt-play', sound: '.hero__yt-sound' });
+</script>
+

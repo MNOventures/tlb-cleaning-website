@@ -32,6 +32,7 @@ import TextBlock from '../../components/sections/TextBlock.astro';
 import ServiceBlocks from '../../components/sections/ServiceBlocks.astro';
 import ComparisonTable from '../../components/sections/ComparisonTable.astro';
 import BeforeAfter from '../../components/sections/BeforeAfter.astro';
+import VideoFeature from '../../components/sections/VideoFeature.astro';
 // Before/after pairs — real TLB job photos. The `sample-` files are flat
 // illustrations and stay only where no real pair exists for that subject yet.
 // The content imports sit here, where the four before/after photo imports
@@ -85,7 +86,7 @@ export const getStaticPaths = (() =>
   }))) satisfies GetStaticPaths;
 
 const { page: townPage } = Astro.props as { page: TownPage };
-const { town, region, nearby, hero: heroImage, local } = townPage;
+const { town, region, nearby, hero: heroImage, local, video: townVideo } = townPage;
 
 // "The Tweed" reads wrong after another article ("the surrounding The
 // Tweed"), so prose drops the leading article and the label keeps it for
@@ -314,6 +315,16 @@ const schema = pageSchema({
       cta={page.definition.cta}
       backgroundImage={page.definition.backgroundImage}
     />
+
+    {/* Hub #66: a real TLB job in or near this town, from the town's file in
+        Pages CMS (Town pages > Video). Renders nothing without a link. */}
+    {townVideo?.src && (
+      <VideoFeature
+        headingLines={[townVideo.heading ?? `A recent TLB job near ${town}`]}
+        lead={townVideo.lead}
+        video={{ label: townVideo.label ?? `A TLB clean near ${town}`, src: townVideo.src }}
+      />
+    )}
 
     {/* `list` variant rather than the homepage's image tiles: six rows of text
         link out cleanly and, unlike photo tiles, don't imply that the photo
