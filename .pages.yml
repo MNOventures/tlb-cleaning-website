@@ -756,6 +756,9 @@ components:
         type: string
         list: true
         required: true
+      - name: lead
+        label: Sentence beside the video
+        type: text
       - name: video
         type: object
         label: Video
@@ -767,6 +770,10 @@ components:
           - name: caption
             label: Caption
             type: string
+          - name: src
+            label: YouTube link
+            type: string
+            description: "Paste the video's YouTube link (a Shorts, watch or /embed/ link). Portrait reels show cropped to 4:5 beside the heading. Leave empty to hide this section."
 
   contactForm:
     type: object
@@ -2422,7 +2429,7 @@ content:
           - { name: firstVisit, component: textBlock, label: "The first one takes longer" }
           - { name: buying, component: textBlock, label: "What you're actually buying (dark band)" }
           - { name: beforeAfter, component: beforeAfter, label: "Before and after" }
-          - { name: video, component: videoFeature, label: "Video (hidden on the site for now)" }
+          - { name: video, component: videoFeature, label: "Video (shows once a YouTube link is added)" }
           - name: booking
             component: textBlock
             label: "Easy to book (dark band)"
@@ -2575,7 +2582,7 @@ content:
           - { name: moments, component: textGrid, label: "When people book a deep clean (grid)" }
           - { name: comparison, component: comparisonTable, label: "Deep clean, regular clean or bond clean (table)" }
           - { name: beforeAfter, component: beforeAfter, label: "Before and after" }
-          - { name: video, component: videoFeature, label: "Video (hidden on the site for now)" }
+          - { name: video, component: videoFeature, label: "Video (shows once a YouTube link is added)" }
           - name: booking
             component: textBlock
             label: "Easy to book, fast quoting (dark band)"
@@ -2635,7 +2642,7 @@ content:
             label: "What an end of lease clean costs"
             description: "No price band until Teagan confirms one. Never publish a figure in [brackets]."
           - { name: beforeAfter, component: beforeAfter, label: "Before and after" }
-          - { name: video, component: videoFeature, label: "Video (hidden on the site for now)" }
+          - { name: video, component: videoFeature, label: "Video (shows once a YouTube link is added)" }
           - name: booking
             component: textBlock
             label: "Book it around the handover date (dark band)"
