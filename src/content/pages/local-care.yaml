@@ -38,6 +38,7 @@ howItWorks:
           identifies the property.
 whoCanNominate:
   heading: Who you can nominate
+  backgroundImage: /src/assets/why_tlb/why-tlb-cleaner-on-the-verandah-with-her-caddy.jpg
   body:
     - type: paragraph
       text: Anyone across the region we look after. That's Lismore, Casino, Kyogle,
