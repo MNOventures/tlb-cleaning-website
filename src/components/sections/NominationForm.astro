@@ -193,13 +193,6 @@ const config = {
             <span>They're happy to be contacted</span>
           </label>
         </div>
-
-        <div class="field field--full">
-          <label class="field__check">
-            <input type="checkbox" name="keepMePosted" value="Yes" />
-            <span>Keep me posted with TLB news and Local Care stories</span>
-          </label>
-        </div>
       </div>
 
       {/* Honeypot, as in ContactForm.astro: off-screen rather than display:none. */}
@@ -368,9 +361,8 @@ const config = {
 
         showThanks();
         // Also log the nomination in Klaviyo (account RfmmEc) as a "Local Care
-        // Nomination" event, which feeds the TLB Local Care monday board, and
-        // subscribe the nominator to the "TLB Local Care" list (Xq9m9b) only when
-        // they ticked "Keep me posted". Fire and forget: a Klaviyo problem never
+        // Nomination" event, which feeds the TLB Local Care monday board; the same
+        // task adds every nominator to the Klaviyo list "TLB Local Care" (Xq9m9b). Fire and forget: a Klaviyo problem never
         // changes what the reader sees, and the webhook above already has it.
         try {
           const sent = new FormData(form);
@@ -409,28 +401,6 @@ const config = {
               },
             }),
           }).catch(() => {});
-          if (kv('keepMePosted') === 'Yes') {
-            fetch(kBase + 'subscriptions/?company_id=RfmmEc', {
-              method: 'POST',
-              headers: kHeaders,
-              keepalive: true,
-              body: JSON.stringify({
-                data: {
-                  type: 'subscription',
-                  attributes: {
-                    custom_source: 'Local Care nomination form',
-                    profile: {
-                      data: {
-                        type: 'profile',
-                        attributes: { email: person.email, subscriptions: { email: { marketing: { consent: 'SUBSCRIBED' } } } },
-                      },
-                    },
-                  },
-                  relationships: { list: { data: { type: 'list', id: 'Xq9m9b' } } },
-                },
-              }),
-            }).catch(() => {});
-          }
         } catch (klaviyoError) {
           console.error('[FORM] Klaviyo logging failed', klaviyoError);
         }
