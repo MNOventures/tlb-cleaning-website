@@ -218,7 +218,7 @@ const headingId = ytId ? `video-feature-${ytId}` : 'video-feature-heading';
     cursor: pointer;
   }
 
-  .video-feature__yt.is-playing.is-muted .video-feature__sound {
+  .video-feature__yt.is-playing .video-feature__sound {
     display: block;
   }
 
@@ -248,93 +248,8 @@ const headingId = ytId ? `video-feature-${ytId}` : 'video-feature-heading';
 </style>
 
 <script>
-  // Same behaviour as the YouTube hero video in Hero.astro: muted autoplay
-  // once 60% in view, "Tap for sound" while muted, back to the still when it
-  // ends or scrolls out of view. The YouTube player script loads only when a
-  // page has one of these, and is shared with the hero if both are present.
-  const blocks = document.querySelectorAll<HTMLElement>('.video-feature__yt');
-  if (blocks.length) {
-    const w = window as any;
-    let apiReady: Promise<void> | null = null;
-    const loadApi = () =>
-      (apiReady ??= new Promise<void>((resolve) => {
-        if (w.YT?.Player) return resolve();
-        const prev = w.onYouTubeIframeAPIReady;
-        w.onYouTubeIframeAPIReady = () => {
-          prev?.();
-          resolve();
-        };
-        if (!document.querySelector('script[src="https://www.youtube.com/iframe_api"]')) {
-          const s = document.createElement('script');
-          s.src = 'https://www.youtube.com/iframe_api';
-          document.head.append(s);
-        }
-      }));
-
-    blocks.forEach((el) => {
-      const id = el.dataset.ytId;
-      if (!id) return;
-      let player: any = null;
-      let autoplayed = false;
-
-      const reset = () => {
-        try {
-          player?.destroy();
-        } catch {}
-        player = null;
-        el.querySelector('iframe')?.remove();
-        el.classList.remove('is-playing', 'is-muted');
-      };
-
-      const start = async (muted: boolean) => {
-        if (player) {
-          if (!muted) {
-            player.unMute();
-            el.classList.remove('is-muted');
-            player.playVideo();
-          }
-          return;
-        }
-        await loadApi();
-        const holder = document.createElement('div');
-        el.append(holder);
-        el.classList.toggle('is-muted', muted);
-        player = new w.YT.Player(holder, {
-          videoId: id,
-          host: 'https://www.youtube-nocookie.com',
-          playerVars: { autoplay: 1, mute: muted ? 1 : 0, playsinline: 1, rel: 0, controls: 1 },
-          events: {
-            onReady: (e: any) => {
-              if (muted) e.target.mute();
-              e.target.playVideo();
-            },
-            onStateChange: (e: any) => {
-              if (e.data === 1) el.classList.add('is-playing');
-              if (e.data === 0) reset();
-            },
-          },
-        });
-      };
-
-      el.querySelector('.video-feature__play')?.addEventListener('click', () => start(false));
-      el.querySelector('.video-feature__sound')?.addEventListener('click', () => start(false));
-
-      const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-      if ('IntersectionObserver' in window) {
-        new IntersectionObserver(
-          (entries) => {
-            for (const entry of entries) {
-              if (entry.isIntersecting && entry.intersectionRatio >= 0.6 && !player && !autoplayed && !reduceMotion) {
-                autoplayed = true;
-                start(true);
-              } else if (!entry.isIntersecting && player) {
-                reset();
-              }
-            }
-          },
-          { threshold: [0, 0.6] },
-        ).observe(el);
-      }
-    });
-  }
+  // Same behaviour as the YouTube hero video (src/lib/yt-video.ts): starts on
+  // its own once in view, tries sound first, "Tap to mute" / "Tap for sound".
+  import { initYtVideos } from '../../lib/yt-video';
+  initYtVideos({ block: '.video-feature__yt', play: '.video-feature__play', sound: '.video-feature__sound' });
 </script>

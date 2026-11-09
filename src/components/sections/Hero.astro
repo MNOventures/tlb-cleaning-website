@@ -1133,98 +1133,15 @@ const collageColB = collageImages.filter((_, i) => i % 2 === 1);
     cursor: pointer;
   }
 
-  .hero__yt.is-playing.is-muted .hero__yt-sound {
+  .hero__yt.is-playing .hero__yt-sound {
     display: block;
   }
 </style>
 
 <script>
-  // YouTube hero video: poster first, muted autoplay once it is in view, a
-  // "Tap for sound" button while muted, and back to the poster when it ends
-  // (or when the visitor scrolls past it). The YouTube player script is only
-  // loaded when a page has one of these.
-  const ytBlocks = document.querySelectorAll<HTMLElement>('.hero__yt');
-  if (ytBlocks.length) {
-    const w = window as any;
-    let apiReady: Promise<void> | null = null;
-    const loadApi = () =>
-      (apiReady ??= new Promise<void>((resolve) => {
-        if (w.YT?.Player) return resolve();
-        const prev = w.onYouTubeIframeAPIReady;
-        w.onYouTubeIframeAPIReady = () => {
-          prev?.();
-          resolve();
-        };
-        const s = document.createElement('script');
-        s.src = 'https://www.youtube.com/iframe_api';
-        document.head.append(s);
-      }));
-
-    ytBlocks.forEach((el) => {
-      const id = el.dataset.ytId;
-      if (!id) return;
-      let player: any = null;
-      let autoplayed = false;
-
-      const reset = () => {
-        try {
-          player?.destroy();
-        } catch {}
-        player = null;
-        el.querySelector('iframe')?.remove();
-        el.classList.remove('is-playing', 'is-muted');
-      };
-
-      const start = async (muted: boolean) => {
-        if (player) {
-          if (!muted) {
-            player.unMute();
-            el.classList.remove('is-muted');
-            player.playVideo();
-          }
-          return;
-        }
-        await loadApi();
-        const holder = document.createElement('div');
-        el.append(holder);
-        el.classList.toggle('is-muted', muted);
-        player = new w.YT.Player(holder, {
-          videoId: id,
-          host: 'https://www.youtube-nocookie.com',
-          playerVars: { autoplay: 1, mute: muted ? 1 : 0, playsinline: 1, rel: 0, controls: 1 },
-          events: {
-            onReady: (e: any) => {
-              if (muted) e.target.mute();
-              e.target.playVideo();
-            },
-            onStateChange: (e: any) => {
-              if (e.data === 1) el.classList.add('is-playing');
-              if (e.data === 0) reset();
-            },
-          },
-        });
-      };
-
-      el.querySelector('.hero__yt-play')?.addEventListener('click', () => start(false));
-      el.querySelector('.hero__yt-sound')?.addEventListener('click', () => start(false));
-
-      const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-      if ('IntersectionObserver' in window) {
-        new IntersectionObserver(
-          (entries) => {
-            for (const entry of entries) {
-              if (entry.isIntersecting && entry.intersectionRatio >= 0.6 && !player && !autoplayed && !reduceMotion) {
-                autoplayed = true;
-                start(true);
-              } else if (!entry.isIntersecting && player) {
-                reset();
-              }
-            }
-          },
-          { threshold: [0, 0.6] },
-        ).observe(el);
-      }
-    });
-  }
+  // YouTube hero video: starts 2 seconds after the page opens, tries sound
+  // first and falls back to muted with "Tap for sound" (see src/lib/yt-video.ts).
+  import { initYtVideos } from '../../lib/yt-video';
+  initYtVideos({ block: '.hero__yt', play: '.hero__yt-play', sound: '.hero__yt-sound' });
 </script>
 
