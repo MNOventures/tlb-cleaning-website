@@ -1,0 +1,133 @@
+---
+// Sticky quote tab (James, 10 Nov 2026). Follows the visitor down every page
+// that has the quote form (#enquiry) and takes them to it:
+//  - desktop: a tab on the right edge, half way down the screen;
+//  - phones: a pill bottom left, clear of the chat bubble bottom right.
+// It appears once the hero has scrolled away and hides while the form itself
+// is on screen. Its words are the page's own hero button ("Get a fast quote"
+// on the Airbnb page, "Get an instant quote" on household pages), so the
+// brand's CTA rules are kept. Pages without the quote form never show it.
+---
+
+<a class="quote-tab" href="#enquiry" data-cta-location="sticky-tab" hidden>Get a quote</a>
+
+<style>
+  .quote-tab {
+    position: fixed;
+    z-index: 999990;
+    display: block;
+    background: var(--color-brand, #234e52);
+    color: var(--color-on-brand, #fff);
+    font-family: var(--font-display, inherit);
+    font-weight: 700;
+    text-decoration: none;
+    box-shadow: 0 6px 20px rgb(0 0 0 / 0.18);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.25s ease, transform 0.25s ease;
+  }
+
+  .quote-tab[hidden] {
+    display: none;
+  }
+
+  .quote-tab.is-visible {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  .quote-tab:focus-visible {
+    outline: 3px solid var(--color-accent, #8fd3b6);
+    outline-offset: 2px;
+  }
+
+  /* Desktop: vertical tab on the right edge, reading bottom to top. */
+  @media (min-width: 769px) {
+    .quote-tab {
+      right: 0;
+      top: 50%;
+      padding: 20px 12px;
+      border-radius: 12px 0 0 12px;
+      writing-mode: vertical-rl;
+      transform: translate(100%, -50%) rotate(180deg);
+      letter-spacing: 0.02em;
+    }
+
+    .quote-tab.is-visible {
+      transform: translate(0, -50%) rotate(180deg);
+    }
+
+    .quote-tab.is-visible:hover {
+      padding-left: 16px;
+    }
+  }
+
+  /* Phones: a pill bottom left; the chat bubble keeps bottom right. */
+  @media (max-width: 768px) {
+    .quote-tab {
+      left: 16px;
+      bottom: 20px;
+      padding: 14px 20px;
+      border-radius: 999px;
+      font-size: 0.95rem;
+      transform: translateY(16px);
+    }
+
+    .quote-tab.is-visible {
+      transform: translateY(0);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .quote-tab {
+      transition: none;
+    }
+  }
+</style>
+
+<script>
+  const tab = document.querySelector<HTMLAnchorElement>('.quote-tab');
+  const form = document.getElementById('enquiry');
+  if (tab && form) {
+    const heroBtn = document.querySelector<HTMLAnchorElement>(
+      '[data-cta-location="hero"] a[href="#enquiry"], a.btn[href="#enquiry"]',
+    );
+    const label = heroBtn?.textContent?.trim();
+    if (label) tab.textContent = label;
+    tab.hidden = false;
+
+    const hero = document.querySelector('[data-cta-location="hero"]');
+    let pastHero = !hero;
+    let formOnScreen = false;
+    const update = () => tab.classList.toggle('is-visible', pastHero && !formOnScreen);
+
+    if ('IntersectionObserver' in window) {
+      if (hero) {
+        new IntersectionObserver(([e]) => {
+          pastHero = !e.isIntersecting && e.boundingClientRect.top < 0;
+          update();
+        }).observe(hero);
+      }
+      new IntersectionObserver(([e]) => {
+        formOnScreen = e.isIntersecting;
+        update();
+      }).observe(form);
+    } else {
+      pastHero = true;
+      update();
+    }
+
+    tab.addEventListener('click', (ev) => {
+      ev.preventDefault();
+      const smooth = !window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      form.scrollIntoView({ behavior: smooth ? 'smooth' : 'auto', block: 'start' });
+      history.replaceState(null, '', '#enquiry');
+      // Put the cursor in the first field on desktop only; on a phone that
+      // would throw the keyboard up over the form before they have seen it.
+      if (window.matchMedia('(min-width: 769px)').matches) {
+        const first = form.querySelector<HTMLElement>('input, select, textarea');
+        window.setTimeout(() => first?.focus({ preventScroll: true }), smooth ? 600 : 0);
+      }
+    });
+  }
+</script>
