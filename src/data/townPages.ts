@@ -61,6 +61,16 @@ const townFiles = loadFolder(
     hero: photo,
     local: z.array(z.string().min(1)).optional(),
     nearby: z.array(z.string().min(1)).optional(),
+    // Optional YouTube video of a real TLB job in or near the town (hub #66).
+    // Shown in the portrait video block under the intro while src is set.
+    video: z
+      .object({
+        heading: z.string().optional(),
+        lead: z.string().optional(),
+        src: z.string().optional(),
+        label: z.string().optional(),
+      })
+      .optional(),
   }),
 );
 const townFile = new Map(townFiles.map((file) => [file.town, file]));
@@ -201,6 +211,7 @@ export interface TownPage {
   nearby: string[];
   hero: { src: ImageMetadata; label: string };
   local: string[];
+  video?: { heading?: string; lead?: string; src?: string; label?: string };
 }
 
 // ── NEIGHBOURS ───────────────────────────────────────────────────────────
@@ -367,6 +378,7 @@ export const townPages: TownPage[] = regions.flatMap((region) =>
       nearby: override.nearby ?? nearbyFor(town, region),
       hero: townHeroes[town] ?? heroImages[heroKey],
       local: override.local ?? [],
+      video: townFile.get(town)?.video,
     };
   }),
 );
