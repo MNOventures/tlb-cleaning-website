@@ -209,10 +209,7 @@ header:
   - label: Why TLB
     href: /why-tlb/
     groups:
-      - label: Why TLB
-        items:
-          - label: Why choose TLB
-            href: /why-tlb/
+      - items:
           - label: TLB Local Care
             href: /local-care/
   - label: Contact us
