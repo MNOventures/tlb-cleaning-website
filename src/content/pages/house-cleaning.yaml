@@ -185,9 +185,13 @@ beforeAfter:
       caption: Gas cooktop and burners
 video:
   headingLines:
-    - A word from James.
+    - Not sure which clean you need?
+  lead: Regular, deep, end of lease or a holiday let turnover. The team explains
+    which one suits your place, so you can pick the right one before you ask
+    for a quote.
   video:
-    label: James, regular TLB client, talking to camera about his cleans
+    label: The TLB team explaining which clean suits which home
+    src: https://youtube.com/shorts/nOwhOCqkwCk
 booking:
   heading: "{{line.instant.heading}}"
   body:
