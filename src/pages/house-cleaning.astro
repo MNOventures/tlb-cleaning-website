@@ -475,6 +475,11 @@ const schema = pageSchema({
 
     <PathwayCards heading={page.pathways.heading} headingAccent={page.pathways.headingAccent} cards={pathwayCards} />
 
+    {/* Portrait video block (hub #62 and #67): the team explaining which clean
+        suits which home, right after the service types it is about. Shows
+        only while page.video has a YouTube link (Pages CMS, "Video"). */}
+    <VideoFeature headingLines={page.video.headingLines} lead={page.video.lead} video={page.video.video} />
+
     <ComparisonTable
       heading={page.inclusions.heading}
       lead={page.inclusions.lead}
@@ -531,8 +536,6 @@ const schema = pageSchema({
       beforeLabel={page.beforeAfter.beforeLabel}
       afterLabel={page.beforeAfter.afterLabel}
     />
-
-    <VideoFeature headingLines={page.video.headingLines} video={{ ...page.video.video, ratio: '16/9' }} />
 
     <TextBlock
       theme="dark"
