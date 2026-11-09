@@ -1587,6 +1587,13 @@ content:
         fields:
           - { name: seo, component: seo }
           - { name: hero, component: hero }
+          - name: heroVideo
+            label: Hero video (replaces the photo)
+            type: object
+            description: "A YouTube /embed/ link, e.g. https://www.youtube.com/embed/VIDEO_ID. The portrait reel shows cropped to 4:5 with a play button, plays muted once in view, and goes back to its first frame at the end. Clear both fields to show the photo again."
+            fields:
+              - { name: src, label: Video link, type: string }
+              - { name: title, label: Short description for screen readers, type: string }
           - name: trustBar
             label: Trust bar (this page only)
             type: object
