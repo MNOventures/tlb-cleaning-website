@@ -15,7 +15,7 @@ hero:
   image:
     alt: A TLB team at work on a community job
 heroVideo:
-  src: https://drive.google.com/file/d/1MI91XuMRi2n372r-IaitH34jm94evVkI/preview
+  src: https://www.youtube-nocookie.com/embed/KbAz1-5J-j4?rel=0
   title: TLB Local Care video
 howItWorks:
   heading: How it works
@@ -38,6 +38,7 @@ howItWorks:
           identifies the property.
 whoCanNominate:
   heading: Who you can nominate
+  backgroundImage: /src/assets/why_tlb/why-tlb-cleaner-on-the-verandah-with-her-caddy.jpg
   body:
     - type: paragraph
       text: Anyone across the region we look after. That's Lismore, Casino, Kyogle,

@@ -360,6 +360,50 @@ const config = {
         if (!response.ok) throw new Error(`Webhook responded ${response.status}`);
 
         showThanks();
+        // Also log the nomination in Klaviyo (account RfmmEc) as a "Local Care
+        // Nomination" event, which feeds the TLB Local Care monday board; the same
+        // task adds every nominator to the Klaviyo list "TLB Local Care" (Xq9m9b). Fire and forget: a Klaviyo problem never
+        // changes what the reader sees, and the webhook above already has it.
+        try {
+          const sent = new FormData(form);
+          const kv = (name) => String(sent.get(name) || '').trim();
+          const fullName = kv('yourName');
+          const space = fullName.indexOf(' ');
+          const person = {
+            email: kv('yourEmail'),
+            first_name: space > 0 ? fullName.slice(0, space) : fullName,
+            last_name: space > 0 ? fullName.slice(space + 1) : '',
+          };
+          const kHeaders = { 'Content-Type': 'application/json', revision: '2024-10-15' };
+          const kBase = 'https://a.klaviyo.com/client/';
+          fetch(kBase + 'events/?company_id=RfmmEc', {
+            method: 'POST',
+            headers: kHeaders,
+            keepalive: true,
+            body: JSON.stringify({
+              data: {
+                type: 'event',
+                attributes: {
+                  properties: {
+                    nominatorName: fullName,
+                    nominatorPhone: kv('yourPhone'),
+                    nomineeName: kv('nomineeName'),
+                    nomineeTown: kv('nomineeTown'),
+                    whyTheyNeedAHand: kv('whyTheyNeedAHand'),
+                    nomineeKnows: kv('nomineeKnows'),
+                    happyToBeContacted: kv('happyToBeContacted'),
+                    keepMePosted: kv('keepMePosted'),
+                    sourcePage: window.location.pathname,
+                  },
+                  metric: { data: { type: 'metric', attributes: { name: 'Local Care Nomination' } } },
+                  profile: { data: { type: 'profile', attributes: person } },
+                },
+              },
+            }),
+          }).catch(() => {});
+        } catch (klaviyoError) {
+          console.error('[FORM] Klaviyo logging failed', klaviyoError);
+        }
       } catch (error) {
         console.error('[FORM] nomination submit failed', error);
         setStatus(config.copy.errorHeading, config.copy.errorBody, 'error', true);
