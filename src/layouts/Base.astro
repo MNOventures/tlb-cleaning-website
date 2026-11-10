@@ -116,6 +116,7 @@ new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
 j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
 })(window,document,'script','dataLayer','${GTM_CONTAINER_ID}');`;
+import QuoteTab from '../components/ui/QuoteTab.astro';
 ---
 
 <!doctype html>
@@ -239,6 +240,8 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
     </noscript>
     <a class="skip-link" href="#main">Skip to main content</a>
     <slot />
+    {/* Sticky quote tab: follows the visitor and jumps to the quote form (#enquiry). */}
+    <QuoteTab />
     {/* Your Digital Office chat widget. Supplied by the vendor as a
         paste-before-</body> snippet and reproduced verbatim; `client` is a
         public identifier, not a secret. Unlike Simple Commenter it is for real

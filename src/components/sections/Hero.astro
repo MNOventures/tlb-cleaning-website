@@ -718,7 +718,10 @@ const collageColB = collageImages.filter((_, i) => i % 2 === 1);
     display: flex;
     align-items: center;
     justify-content: center;
-    padding-block: var(--space-lg);
+    /* Extra room at the bottom: TrustBar's card row pulls up over the hero by
+       --trust-bar-overlap (2.75rem, set in TrustBar.astro), which cut into the
+       bottom of the video. Keep this in step if that value changes. */
+    padding-block: var(--space-lg) calc(var(--space-lg) + 2.75rem);
   }
 
   .hero__video {
@@ -860,7 +863,7 @@ const collageColB = collageImages.filter((_, i) => i % 2 === 1);
 
     /* One column: the player sits under the copy with the container's inset. */
     .hero--split-single .hero__media--video {
-      padding: 0 var(--space-md) var(--space-lg);
+      padding: 0 var(--space-md) calc(var(--space-lg) + 2.75rem);
     }
   }
 

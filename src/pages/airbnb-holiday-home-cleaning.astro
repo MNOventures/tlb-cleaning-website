@@ -553,9 +553,6 @@ const schema = pageSchema({
       video={heroVideo}
     />
 
-    {/* The quote form sits straight under the hero on this page (9 Nov 2026). Most visitors here arrive from Meta ads and leave within seconds, so the form is where they land rather than at the foot of the page. Same site-wide form (id="enquiry"), so SiteFooter below skips its copy. */}
-    <ContactForm heading="Get a fast quote for your holiday let" fallbackPhone={footerContact.phone} fallbackEmail={footerContact.email} />
-
     {/* Trust bar and definition share ONE photo behind a Cream scrim, laid
         across both sections.
 
@@ -782,6 +779,13 @@ const schema = pageSchema({
       lead={page.closingCta.lead}
       cta={page.closingCta.cta ?? quoteCta}
     />
+
+    {/* The quote form sits at the foot of the page (moved back from under the
+        hero on 10 Nov 2026, James: the full form up top made the page look
+        odd). The hero button and the sticky quote tab (QuoteTab in Base.astro)
+        jump here. Same site-wide form (id="enquiry"), so SiteFooter below
+        skips its copy. */}
+    <ContactForm heading="Get a fast quote for your holiday let" fallbackPhone={footerContact.phone} fallbackEmail={footerContact.email} />
   </main>
 
   <SiteFooter
