@@ -1,11 +1,11 @@
 seo:
-  title: End of Lease Cleaning NSW & QLD | TLB Cleaning
-  description: End of lease and bond cleaning that passes the first inspection,
-    across NSW and QLD. We know both sets of rules. Get your fixed quote today.
+  title: End of Lease Cleaning Northern Rivers | TLB Cleaning
+  description: End of lease and bond cleaning across the Northern Rivers, the Tweed and the Southern Gold Coast, done to the inspection standard. Fixed quote.
+
 hero:
   headingLines:
     - End of lease cleaning, to the standard the inspection measures
-  lead: End of lease cleaning for tenants who want their bond back, and for the
+  lead: End of lease cleaning for tenants handing back the keys, and for the
     agencies that manage the property. Both sides of the border, quoted before
     we start, with the full task list published on this page. {{line.fast}}
   image:
@@ -33,7 +33,7 @@ pathways:
     - image:
         src: /src/assets/home_cleaning/inside_your_home/end_of_lease_and_bond_cleaning/end-of-lease-empty-room-glass-doors-onto-the-deck.jpg
         alt: A cleared room with glass doors open onto the deck and paddock
-      title: I'm moving out and I want my bond back
+      title: I'm moving out and the final inspection is coming
       description: Then you want the clean measured against the entry condition
         report, not against how clean the place feels. That is what this page is
         about.
@@ -322,7 +322,7 @@ faq:
         will come back and put it right at no charge. That covers what we quoted
         for. It does not cover work nobody booked, or damage that cleaning was
         never going to fix. Let us know quickly, before the keys change hands.
-    - question: Do you guarantee I will get my bond back?
+    - question: Do you guarantee I will get my full bond returned?
       answer: "No, and be careful of anyone who does. Your bond depends on the
         condition report, fair wear and tear and what the agent writes, and a
         cleaner controls none of those. What we promise is the part we do
