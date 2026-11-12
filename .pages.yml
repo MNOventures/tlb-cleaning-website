@@ -3675,7 +3675,7 @@ content:
             component: iconGrid
             label: "The four things that cost you reviews"
             description: "Patterns, not statistics: no percentages or claims about \"most reviews\". The button under the grid is the site-wide quote button."
-          - { name: photos, component: callout, label: "Photograph on arrival (box)" }
+          - { name: photos, component: callout, label: "We photograph on arrival (box)" }
           - name: notTurnover
             component: contentGrid
             label: "Two things a turnover is not (text and photos)"
