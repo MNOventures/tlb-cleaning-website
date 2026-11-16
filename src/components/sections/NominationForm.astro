@@ -360,6 +360,15 @@ const config = {
         if (!response.ok) throw new Error(`Webhook responded ${response.status}`);
 
         showThanks();
+        // Tell GTM a nomination landed, so GA4 can count it with a Custom Event
+        // trigger on "nomination_submit". Only reached after the webhook said OK,
+        // so failed, unconfigured and honeypot submits are never counted.
+        try {
+          const w = window;
+          (w.dataLayer = w.dataLayer || []).push({ event: 'nomination_submit', formName: 'local_care_nomination', sourcePage: window.location.pathname });
+        } catch (dlError) {
+          console.error('[FORM] dataLayer push failed', dlError);
+        }
         // Also log the nomination in Klaviyo (account RfmmEc) as a "Local Care
         // Nomination" event, which feeds the TLB Local Care monday board; the same
         // task adds every nominator to the Klaviyo list "TLB Local Care" (Xq9m9b). Fire and forget: a Klaviyo problem never
