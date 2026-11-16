@@ -237,6 +237,11 @@ The wording is editable in Pages CMS → **TLB Local Care (not live yet)** →
 **Nomination form (closing section)**. It is not in the Local Care copy doc
 yet, so get it signed off with the rest of the page.
 
+On a successful send only, the page also pushes
+`{ event: 'nomination_submit', formName: 'local_care_nomination', sourcePage }`
+to the GTM `dataLayer`, so GA4 can count nominations with a Custom Event
+trigger. Failed, not-connected and honeypot submits push nothing.
+
 ---
 
 ## Spam
