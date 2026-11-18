@@ -22,7 +22,7 @@
 // the thank-you path stay here: they are wiring, not content.
 import { z } from 'astro/zod';
 import { loadData } from '../lib/cms-data';
-import { northernRiversTowns } from './locations';
+import { northernRiversTowns, tweedTowns } from './locations';
 
 const formData = loadData(
   'site/contact-form',
@@ -114,13 +114,16 @@ export const serviceOptions: SelectOption[] = formData.serviceOptions.map((value
  * was out of area rather than having the reader pick the nearest wrong region.
  */
 // 18 Nov 2026 (James): the form asks for the SUBURB now, not the region.
-// The list is the Northern Rivers towns from locations.ts, in A to Z order so
-// a reader can find theirs quickly, plus "Other" for everywhere else (the
-// Tweed and the Gold Coast included). The field is still submitted as `area`,
+// The list is the Northern Rivers and Tweed towns from locations.ts plus
+// Coolangatta (James, 18 Nov 2026), in A to Z order so a reader can find
+// theirs quickly, then "Other" for everywhere else (the rest of the Gold
+// Coast included). The field is still submitted as `area`,
 // so the Zapier mapping does not change; the Monday.com "Service Area"
 // dropdown carries every one of these labels (added 18 Nov 2026).
 export const areaOptions: SelectOption[] = [
-  ...[...northernRiversTowns].sort((a, b) => a.localeCompare(b)).map((town) => ({ value: town })),
+  ...[...northernRiversTowns, ...tweedTowns, 'Coolangatta']
+    .sort((a, b) => a.localeCompare(b))
+    .map((town) => ({ value: town })),
   { value: 'Other' },
 ];
 
