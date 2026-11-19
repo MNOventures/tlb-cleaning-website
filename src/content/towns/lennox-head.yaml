@@ -2,3 +2,8 @@ town: Lennox Head
 hero:
   src: /src/assets/locations/long-point-break-beach-below-a-grassy-coastal-park.jpg
   alt: A long sand beach curving from a rocky point below a grassy coastal reserve
+video:
+  heading: A recent TLB turnover in Lennox Head
+  lead: A real holiday let turnover by the TLB team in Lennox Head, from the first walk-through to the photo report.
+  src: https://youtube.com/shorts/dAsVnVJ2Vyo
+  label: A TLB holiday let turnover in Lennox Head
