@@ -169,6 +169,11 @@ const page = await getPage(
     // their own button is filled in.
     applyCta: section.link,
     hero: section.hero,
+    // Optional portrait video in the hero (hub #101). A YouTube /embed/ link;
+    // leave it empty to show the photo.
+    heroVideo: section.optional(
+      z.object({ src: section.optional(section.pageHref), title: section.optional(section.text) }),
+    ),
     // The `divided` trust bar: one short phrase per item, this page's own.
     trustBar: z.object({ items: z.array(section.text).min(1) }),
     theJob: section.textBlock,
@@ -194,6 +199,12 @@ const business = meetTheTeamBusiness(pageMeta.description);
 const applyCta = page.applyCta;
 
 const heroImage = page.hero.image && sized(page.hero.image, '4/3');
+
+// Hub #101: the hiring reel replaces the photo while a link is set. A 9:16
+// reel is cropped to 4:5 in the hero, the same as the Local Care page.
+const heroVideo = page.heroVideo?.src
+  ? { src: page.heroVideo.src, title: page.heroVideo.title ?? 'Working at TLB Cleaning', frame: '4/5' }
+  : undefined;
 
 const offerBlocks = page.offers.items.map((item) => ({
   type: 'text' as const,
@@ -226,6 +237,7 @@ const schema = pageSchema({ url: pageMeta.canonical, title: pageMeta.title, type
       lead={page.hero.lead}
       cta={page.hero.cta ?? applyCta}
       image={heroImage}
+      video={heroVideo}
     />
 
     <TrustBar items={page.trustBar.items} />
