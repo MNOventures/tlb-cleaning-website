@@ -158,6 +158,11 @@ const page = await getPage(
   z.object({
     seo: section.seo,
     hero: section.hero,
+    // Optional portrait video in the hero (hub #99). A YouTube /embed/ link;
+    // leave it empty to show the photo.
+    heroVideo: section.optional(
+      z.object({ src: section.optional(section.pageHref), title: section.optional(section.text) }),
+    ),
     // Its background photo sits behind the trust bar and this block together
     // (the Backdrop below), so it cannot be left empty.
     definition: section.textBlock.extend({ backgroundImage: section.backgroundPhoto }),
@@ -192,6 +197,12 @@ const business = localBusiness({
 
 const heroImage = page.hero.image && sized(page.hero.image, '4/3');
 
+// Hub #99: the turnover reel replaces the photo while a link is set. A 9:16
+// reel is cropped to 4:5 in the hero, the same as the Local Care page.
+const heroVideo = page.heroVideo?.src
+  ? { src: page.heroVideo.src, title: page.heroVideo.title ?? 'A TLB holiday let turnover', frame: '4/5' }
+  : undefined;
+
 const checklistBlocks = page.checklist.items.map((item) => ({ type: 'text' as const, ...item }));
 
 // Photos are laid out at 4/3.
@@ -221,6 +232,7 @@ const moreGuideTags = relatedGuides(selfHref, page.moreGuides.tags ?? []);
       lead={page.hero.lead}
       cta={page.hero.cta ?? quoteCta}
       image={heroImage}
+      video={heroVideo}
     />
 
     <Backdrop image={page.definition.backgroundImage} tint="muted" opacity={90} focus="center">
