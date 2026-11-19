@@ -367,6 +367,54 @@ const config = {
       status.hidden = false;
     };
 
+    // Started-quote capture (control panel task #112, 19 Nov 2026). When a valid
+    // email has been typed, tell Klaviyo a quote was started, so someone who
+    // leaves without sending can get a short "want us to finish this?" email.
+    // Only the email, the service picked and the page are sent. Klaviyo skips
+    // anyone who goes on to send the form. The line under the field says so.
+    const emailField = form.querySelector('input[type="email"]');
+    if (emailField) {
+      const saveNote = document.createElement('p');
+      saveNote.style.cssText = 'margin:0.35rem 0 0;font-size:0.8125rem;line-height:1.4;opacity:0.75';
+      saveNote.textContent = "We save your email as you go, so we can help if you don't finish.";
+      emailField.insertAdjacentElement('afterend', saveNote);
+      let startedFor = '';
+      emailField.addEventListener('blur', () => {
+        const email = emailField.value.trim().toLowerCase();
+        const trapField = form.querySelector('[name="website"]');
+        if (!email || !emailField.checkValidity() || email === startedFor) return;
+        if (trapField && trapField.value.trim() !== '') return;
+        startedFor = email;
+        try {
+          if (window.sessionStorage.getItem('tlbStartedQuote') === email) return;
+          window.sessionStorage.setItem('tlbStartedQuote', email);
+        } catch (storageError) {
+          // Private windows can refuse storage; sending once per page is fine.
+        }
+        const serviceField = form.querySelector('select');
+        fetch('https://a.klaviyo.com/client/events/?company_id=RfmmEc', {
+          method: 'POST',
+          keepalive: true,
+          headers: { 'Content-Type': 'application/json', revision: '2024-10-15' },
+          body: JSON.stringify({
+            data: {
+              type: 'event',
+              attributes: {
+                properties: {
+                  sourcePage: window.location.pathname,
+                  service: serviceField ? serviceField.value : '',
+                },
+                metric: { data: { type: 'metric', attributes: { name: 'Started Quote Form' } } },
+                profile: { data: { type: 'profile', attributes: { email } } },
+              },
+            },
+          }),
+        }).catch(() => {
+          // Never let this get in the way of the form itself.
+        });
+      });
+    }
+
     form.addEventListener('submit', async (event) => {
       event.preventDefault();
 
