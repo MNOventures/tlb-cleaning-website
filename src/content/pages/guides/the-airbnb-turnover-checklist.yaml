@@ -15,6 +15,9 @@ hero:
     src: /src/assets/airbnb/airbnb-turnover-making-up-a-bed-with-fresh-white-linen.jpg
     alt: A cleaner making up a bed with fresh white linen in a bright coastal
       bedroom, hospital corners half-done
+heroVideo:
+  src: https://www.youtube-nocookie.com/embed/xMzhJFzxWQE?rel=0
+  title: Checkout at 10, guests in at 2, a TLB holiday let turnover explained
 definition:
   body:
     - type: paragraph
