@@ -16,6 +16,9 @@ hero:
   image:
     src: /src/assets/work_with_us/work-with-us-two-cleaners-working-together-in-a-kitchen.jpg
     alt: Two TLB cleaners working through a kitchen together on a morning run
+heroVideo:
+  src: https://www.youtube-nocookie.com/embed/zUcWRQD5Q3w?rel=0
+  title: Now hiring at TLB Cleaning, a look at the work
 trustBar:
   items:
     - Employed on the books, not sent out under an ABN
